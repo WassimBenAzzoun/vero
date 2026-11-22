@@ -1,16 +1,19 @@
 import { useCallback, useState } from "react";
-import { useFocusEffect } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import { api } from "../lib/api";
 import type { ReviewPage } from "../lib/reviews";
 import { useLocale } from "../lib/locale";
 import { Button, Notice, Page, T } from "../components/ui";
 import { ReviewCard } from "../components/review-card";
+import { useAuth } from '../lib/auth';
 export function MyReviews() {
   const { t } = useLocale();
+  const {user,ready}=useAuth();
   const [data, setData] = useState<ReviewPage | null>(null);
   const [error, setError] = useState("");
   useFocusEffect(
     useCallback(() => {
+      if(!ready||!user)return;
       let active = true;
       void api<ReviewPage>("/my/reviews")
         .then((value) => {
@@ -22,7 +25,7 @@ export function MyReviews() {
       return () => {
         active = false;
       };
-    }, [t.network]),
+    }, [t.network,ready,user]),
   );
   const more = async () => {
     try {
@@ -37,6 +40,8 @@ export function MyReviews() {
       setError(e instanceof Error ? e.message : t.network);
     }
   };
+  if(!ready)return <Page><Notice text={t.loading}/></Page>;
+  if(!user)return <Page title={t.myReviews}><Button title={t.login} onPress={()=>router.push({pathname:'/login',params:{returnTo:'/my-reviews'}})}/></Page>;
   return (
     <Page title={t.myReviews}>
       <Notice error text={error} />

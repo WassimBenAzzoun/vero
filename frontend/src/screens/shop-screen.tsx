@@ -13,14 +13,24 @@ import { ReportButton } from "../components/report-button";
 import { sharePath } from "../lib/share";
 import type { ReviewPage } from "../lib/reviews";
 import { colors, fonts } from "../theme";
-export function ShopScreen({ id }: { id: string }) {
+export function ShopScreen({
+  id,
+  initialShop,
+  initialReviews,
+}: {
+  id: string;
+  initialShop?: Shop | null;
+  initialReviews?: ReviewPage | null;
+}) {
   const { user } = useAuth();
   const { update } = useDraft();
   const { t, rtl, language } = useLocale();
-  const [shop, setShop] = useState<Shop | null>(null);
+  const [shop, setShop] = useState<Shop | null>(initialShop || null);
   const [error, setError] = useState("");
   const [attempt, setAttempt] = useState(0);
-  const [reviews, setReviews] = useState<ReviewPage | null>(null);
+  const [reviews, setReviews] = useState<ReviewPage | null>(
+    initialReviews || null,
+  );
   const [stars, setStars] = useState<number>();
   const [photos, setPhotos] = useState(false);
   useFocusEffect(

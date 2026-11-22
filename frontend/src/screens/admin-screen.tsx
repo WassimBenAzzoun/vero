@@ -235,7 +235,7 @@ export function AdminScreen() {
                   </T>
                 </View>
               ))}
-              {!data && <Notice text={t.loading} />}{" "}
+              {!data && <Notice text={t.loading} />}
               {data && !data.items.length && <Notice text={t.noItems} />}
               {data?.nextCursor && (
                 <TextAction

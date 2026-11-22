@@ -22,7 +22,7 @@ export function AuthScreen({ mode }: { mode: Mode }) {
       "/search",
       "/my-reviews",
     ].includes(params.returnTo || "") ||
-    /^\/reviews\/[a-f\d-]{36}$/i.test(params.returnTo || "")
+    /^\/(reviews|shops)\/[a-f\d-]{36}$/i.test(params.returnTo || "")
       ? params.returnTo!
       : "/profile";
   const [email, setEmail] = useState("");

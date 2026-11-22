@@ -7,6 +7,7 @@ import helmet from 'helmet';
 import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
+import { mountWeb } from './web';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -15,7 +16,40 @@ async function bootstrap() {
 
   app.setGlobalPrefix('api');
 
-  app.use(helmet());
+  if (process.env.NODE_ENV === 'production')
+    app.getHttpAdapter().getInstance().set('trust proxy', 1);
+  app.use(
+    helmet({
+      crossOriginOpenerPolicy: { policy: 'same-origin-allow-popups' },
+      crossOriginResourcePolicy: { policy: 'cross-origin' },
+      contentSecurityPolicy:
+        process.env.SERVE_WEB === 'true'
+          ? {
+              directives: {
+                defaultSrc: ["'self'"],
+                scriptSrc: [
+                  "'self'",
+                  "'unsafe-inline'",
+                  'https://accounts.google.com',
+                  'https://apis.google.com',
+                ],
+                styleSrc: [
+                  "'self'",
+                  "'unsafe-inline'",
+                  'https://accounts.google.com',
+                ],
+                imgSrc: ["'self'", 'data:', 'blob:'],
+                fontSrc: ["'self'", 'data:'],
+                connectSrc: ["'self'", 'data:', 'blob:', 'https://accounts.google.com'],
+                frameSrc: ['https://accounts.google.com'],
+                upgradeInsecureRequests:
+                  process.env.NODE_ENV === 'production' ? [] : null,
+              },
+            }
+          : undefined,
+    }),
+  );
+  mountWeb(app);
 
   app.enableCors({
     origin: config

@@ -47,29 +47,32 @@ frontend/
 
 Keep NestJS as the API boundary; do not duplicate authentication, database or domain services in Expo API routes. Native/web variants use the same typed interface. Consult the plugin overview and CLI help when scaffolding; select a concrete SDK then use its version-matched documentation and compatible dependency installation. No Expo SDK is installed as part of tasks 01/02.
 
-- [ ] Scaffold Expo with TypeScript and Expo Router in frontend/. Select compatible stable versions using current official documentation and commit its lockfile.
-- [ ] Define central palette, spacing, radius, type, elevation and motion tokens. Maintain a focused set of Button, Input, StarRating, Avatar, ReviewCard, ShopRow, PhotoPicker, EmptyState and ErrorState components.
-- [ ] With the Build Web Apps skill, produce complete primary app-screen concepts grounded in this brand before substantial UI coding. Cover Feed, search/shop, composer and auth states, plus mobile/desktop adaptations; preserve Expo rather than its generic Vite default.
-- [ ] Implement navigation: Feed, Search, Write a review and Profile. Admin pages are available on web only to authorized users; backend authorization is still mandatory.
-- [ ] Add an API client with safe error mapping and bounded retries, server-state caching and invalidation, and feature-specific hooks. Never retry publication blindly without its submission ID.
-- [ ] Separate native/web Google adapters behind one interface. Restore authentication state before displaying protected routes; retain composer context through sign-in and linking.
-- [ ] Implement all screens listed in 01 using real API contracts from 11. Review publication updates shop ratings and Latest; engagement invalidates relevant card/detail counts.
-- [ ] Add French and Arabic translation keys from the start. Mirror directional layout for RTL while keeping URLs/handles legible. Use localized dates, accessible stars/buttons and proper focus/keyboard handling.
-- [ ] Preserve draft text, shop and photo-selection context during navigation/network interruptions. Clearly distinguish a local draft from an uploaded or published review.
-- [ ] Support touch targets, screen readers, reduced motion, safe areas, keyboard avoidance, image loading and low-bandwidth retries. No inert buttons or invented demo popularity in production.
-- [ ] Implement stable public shop/review URLs and native deep links. Select Expo static/server rendering after checking the installed SDK and hosting support; newly added profiles and changed reviews must be discoverable and current under that strategy.
-- [ ] Verify browser screenshots against the visual concept and inspect native screens on Android/iOS. Record concrete layout, typography, palette, spacing, asset and RTL checks.
+- [x] Scaffold Expo with TypeScript and Expo Router in frontend/. Select compatible stable versions using current official documentation and commit its lockfile.
+- [x] Define central palette, spacing, radius, type, elevation and motion tokens. Maintain a focused set of Button, Input, StarRating, Avatar, ReviewCard, ShopRow, PhotoPicker, EmptyState and ErrorState components.
+- [x] With the Build Web Apps skill, produce complete primary app-screen concepts grounded in this brand before substantial UI coding. Cover Feed, search/shop, composer and auth states, plus mobile/desktop adaptations; preserve Expo rather than its generic Vite default.
+- [x] Implement navigation: Feed, Search, Write a review and Profile. Admin pages are available on web only to authorized users; backend authorization is still mandatory.
+- [x] Add an API client with safe error mapping and bounded retries, server-state caching and invalidation, and feature-specific hooks. Never retry publication blindly without its submission ID.
+- [x] Separate native/web Google adapters behind one interface. Restore authentication state before displaying protected routes; retain composer context through sign-in and linking.
+- [x] Implement all screens listed in 01 using real API contracts from 11. Review publication updates shop ratings and Latest; engagement invalidates relevant card/detail counts.
+- [x] Add French and Arabic translation keys from the start. Mirror directional layout for RTL while keeping URLs/handles legible. Use localized dates, accessible stars/buttons and proper focus/keyboard handling.
+- [x] Preserve draft text, shop and photo-selection context during navigation/network interruptions. Clearly distinguish a local draft from an uploaded or published review.
+- [x] Support touch targets, screen readers, reduced motion, safe areas, keyboard avoidance, image loading and low-bandwidth retries. No inert buttons or invented demo popularity in production.
+- [x] Implement stable public shop/review URLs and native deep links. Select Expo static/server rendering after checking the installed SDK and hosting support; newly added profiles and changed reviews must be discoverable and current under that strategy.
+- [ ] Inspect native screens on real Android/iOS devices. Browser screenshot comparison is complete; device evidence remains pending.
 
 ## Acceptance
 
-- [ ] Review and add-shop forms remain short; no verification or moderation approval steps appear.
-- [ ] All primary screens have loading, empty, error, offline/retry and signed-out states.
-- [ ] Brand colors and type are shared tokens, not inconsistent per-screen choices.
-- [ ] Web mobile/desktop, Android, iOS and Arabic RTL remain usable.
-- [ ] Shared URLs open useful public content without requiring app installation.
+- [x] Review and add-shop forms remain short; no verification or moderation approval steps appear.
+- [x] All primary screens have loading, empty, error, offline/retry and signed-out states.
+- [x] Brand colors and type are shared tokens, not inconsistent per-screen choices.
+- [ ] Complete physical Android/iOS usability checks. Web mobile/desktop and Arabic RTL checks passed; both native JavaScript bundles export successfully.
+- [x] Shared URLs open useful public content without requiring app installation.
 
 ## Official references
 
 - [Expo Router](https://docs.expo.dev/router/introduction/) - cross-platform routes and linking.
 - [Expo web configuration](https://docs.expo.dev/versions/latest/config/app/) - static/server web output selection.
 - [Expo Google authentication](https://docs.expo.dev/guides/google-authentication/) - native development-build requirements.
+
+Implementation evidence: shared theme/primitives, complete auth/search/feed/composer concepts and web admin concept, French/Arabic screens, four destinations, draft persistence, private photo uploads and functional moderation. Expo SDK 58 server rendering uses web-only public loaders, while native routes retain client fetching. NestJS serves the export on the same origin. Direct HTTP HTML includes current shop/review content and ratings; no cache is used for documents/loaders. Native deep links use the vero scheme. Testing APK preparation uses EAS preview; no store publishing is authorized or claimed here.
+

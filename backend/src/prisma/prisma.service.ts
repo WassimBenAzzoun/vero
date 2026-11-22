@@ -14,7 +14,11 @@ export class PrismaService
       throw new Error('DATABASE_URL environment variable is required');
     }
 
-    const adapter = new PrismaPg({ connectionString });
+    const adapter = new PrismaPg({
+      connectionString,
+      max: 5,
+      connectionTimeoutMillis: 10000,
+    });
 
     super({ adapter });
   }

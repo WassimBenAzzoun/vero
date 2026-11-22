@@ -5,6 +5,7 @@ build/
 coverage/
 .expo/
 web-build/
+dist-native-check/
 *.tsbuildinfo
 
 # Local credentials and environment files

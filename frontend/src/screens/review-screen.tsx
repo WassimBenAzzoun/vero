@@ -7,10 +7,16 @@ import type { Review } from "../lib/reviews";
 import { Button, Notice, Page, TextAction } from "../components/ui";
 import { ReviewCard } from "../components/review-card";
 import { Comments } from "../components/comments";
-export function ReviewScreen({ id }: { id: string }) {
+export function ReviewScreen({
+  id,
+  initialReview,
+}: {
+  id: string;
+  initialReview?: Review | null;
+}) {
   const { user } = useAuth();
   const { t } = useLocale();
-  const [review, setReview] = useState<Review | null>(null);
+  const [review, setReview] = useState<Review | null>(initialReview || null);
   const [error, setError] = useState("");
   const [confirm, setConfirm] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -48,7 +54,16 @@ export function ReviewScreen({ id }: { id: string }) {
       {review ? (
         <>
           <ReviewCard review={review} detail />
-          {review.status === "PUBLISHED" && <Comments id={id} />}
+          {review.status === "PUBLISHED" && (
+            <Comments
+              id={id}
+              onChange={() =>
+                void api<Review>(`/reviews/${id}`)
+                  .then(setReview)
+                  .catch(() => {})
+              }
+            />
+          )}
           {user?.id === review.author.id && review.status !== "DELETED" && (
             <>
               <TextAction

@@ -9,7 +9,7 @@ const config: ExpoConfig = {
   userInterfaceStyle: "light",
   ios: { supportsTablet: true, bundleIdentifier: "com.vero.app" },
   android: { package: "com.vero.app", softwareKeyboardLayoutMode: "resize" },
-  web: { bundler: "metro", output: "single", name: "Vero" },
+  web: { bundler: "metro", output: "server", name: "Vero" },
   plugins: [
     "expo-router",
     "expo-secure-store",

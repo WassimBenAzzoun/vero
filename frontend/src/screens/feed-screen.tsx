@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { View } from "react-native";
 import { useFocusEffect } from "expo-router";
 import { api } from "../lib/api";
@@ -6,38 +6,46 @@ import { useLocale } from "../lib/locale";
 import type { ReviewPage } from "../lib/reviews";
 import { Button, Notice, Page, TextAction } from "../components/ui";
 import { ReviewCard } from "../components/review-card";
-export function FeedScreen() {
+import { useAuth } from '../lib/auth';
+export function FeedScreen({
+  initialData,
+}: { initialData?: ReviewPage | null } = {}) {
   const { t } = useLocale();
+  const {user}=useAuth();
+  const version=useRef(0);
+  const lastViewer=useRef(user?.id);
   const [sort, setSort] = useState<"latest" | "trending">("latest");
-  const [data, setData] = useState<ReviewPage | null>(null),
+  const [data, setData] = useState<ReviewPage | null>(initialData || null),
     [error, setError] = useState(""),
     [busy, setBusy] = useState(false);
   const load = useCallback(
     async (cursor?: string) => {
+      const current=++version.current;
       setBusy(true);
       setError("");
       try {
         const page = await api<ReviewPage>(
           `/feed?sort=${sort}${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ""}`,
         );
-        setData((old) =>
+        if(current===version.current)setData((old) =>
           cursor && old
             ? { ...page, items: [...old.items, ...page.items] }
             : page,
         );
       } catch (e) {
-        setError(e instanceof Error ? e.message : t.network);
+        if(current===version.current)setError(e instanceof Error ? e.message : t.network);
       } finally {
-        setBusy(false);
+        if(current===version.current)setBusy(false);
       }
     },
     [sort, t.network],
   );
   useFocusEffect(
     useCallback(() => {
-      setData(null);
+      if(lastViewer.current!==user?.id){lastViewer.current=user?.id;setData(null);}
       void load();
-    }, [load]),
+      return ()=>{version.current++;};
+    }, [load,user?.id]),
   );
   return (
     <Page title={t.feedTitle} subtitle={t.feedSubtitle}>
@@ -47,7 +55,7 @@ export function FeedScreen() {
             <Button
               title={t[value]}
               secondary={sort !== value}
-              onPress={() => setSort(value)}
+              onPress={() => {if(value!==sort){setData(null);setSort(value);}}}
             />
           </View>
         ))}

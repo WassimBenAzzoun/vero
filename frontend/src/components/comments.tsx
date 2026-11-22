@@ -13,7 +13,13 @@ type Comment = {
   author: { id: string; fullName: string };
 };
 type CommentPage = { items: Comment[]; nextCursor: string | null };
-export function Comments({ id }: { id: string }) {
+export function Comments({
+  id,
+  onChange,
+}: {
+  id: string;
+  onChange?: () => void;
+}) {
   const { user } = useAuth(),
     { t } = useLocale();
   const [data, setData] = useState<CommentPage | null>(null),
@@ -70,6 +76,7 @@ export function Comments({ id }: { id: string }) {
       setText("");
       setEditing(null);
       await load();
+      onChange?.();
     } catch (e) {
       setError(e instanceof Error ? e.message : t.network);
     } finally {
@@ -81,6 +88,7 @@ export function Comments({ id }: { id: string }) {
     try {
       await api(`/comments/${commentId}`, { method: "DELETE" });
       await load();
+      onChange?.();
     } catch (e) {
       setError(e instanceof Error ? e.message : t.network);
     } finally {
@@ -99,7 +107,7 @@ export function Comments({ id }: { id: string }) {
         maxLength={2000}
       />
       <Button
-        title={editing ? t.save : t.publish}
+        title={editing ? t.save : t.sendComment}
         busy={busy}
         onPress={() => void submit()}
       />

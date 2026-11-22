@@ -4,8 +4,9 @@
     "development": { "developmentClient": true, "distribution": "internal" },
     "preview": {
       "distribution": "internal",
+      "env": { "EXPO_PUBLIC_API_URL": "https://vero-backend.cloudplay.tech/api", "EXPO_PUBLIC_WEB_URL": "https://vero-backend.cloudplay.tech" },
       "android": { "buildType": "apk" }
     },
-    "production": {}
+    "production": { "env": { "EXPO_PUBLIC_API_URL": "https://vero-backend.cloudplay.tech/api", "EXPO_PUBLIC_WEB_URL": "https://vero-backend.cloudplay.tech" } }
   }
 }

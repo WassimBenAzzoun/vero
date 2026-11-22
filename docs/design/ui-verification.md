@@ -24,3 +24,8 @@ Intentional differences: user requested Google disabled until configured, so the
 Copy check: required French headings, field labels and actions are retained. Added copy is limited to required validation, provider-disabled, recovery and navigation states; no new trust claims or verification badges.
 
 Functional checks passed: disabled Google, registration, HttpOnly cookie restore after reload, logout, email captured in local Mailpit, password reset, draft retention through sign-in and Arabic layout. No live Google account, iOS device or Android device has been tested yet. Native verification remains explicitly pending.
+
+## Feed, composer and administration
+
+References: feed-compose-concept.png and admin-concept.png. Rendered screenshots were inspected at 390x844 and 1440x1000. Sand/indigo/green palette, Poppins/Inter/Arabic fonts, mobile gutters, open review rows, shop/stars/photo form and four destinations follow the concepts. Admin uses a wide side-navigation, list and decision panel. Every visible action connects to the API. Intentional changes: readable text action labels replace several concept icons; dates use explicit YYYY-MM-DD input; administration uses adaptable rows rather than a dense table. Native system chrome/device behavior remains unverified. A whitespace text-node warning found during screenshot inspection was corrected. The production-style photo flow caught and verified a data/blob CSP fix.
+
