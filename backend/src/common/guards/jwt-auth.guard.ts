@@ -14,6 +14,7 @@ import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
 
 interface JwtPayload {
   sub: string;
+  sid: string;
 }
 
 @Injectable()
@@ -56,7 +57,12 @@ export class JwtAuthGuard implements CanActivate {
         secret: this.config.getOrThrow<string>('app.jwtSecret'),
       });
 
-      if (typeof payload.sub !== 'string' || !payload.sub) {
+      if (
+        typeof payload.sub !== 'string' ||
+        !payload.sub ||
+        typeof payload.sid !== 'string' ||
+        !payload.sid
+      ) {
         throw new UnauthorizedException();
       }
     } catch {
@@ -77,6 +83,18 @@ export class JwtAuthGuard implements CanActivate {
 
     if (!user?.isActive) {
       throw new UnauthorizedException('Invalid or inactive user');
+    }
+
+    const session = await this.prisma.session.findUnique({
+      where: { id: payload.sid },
+    });
+    if (
+      !session ||
+      session.userId !== user.id ||
+      session.revokedAt ||
+      session.expiresAt <= new Date()
+    ) {
+      throw new UnauthorizedException('Session expired or revoked');
     }
 
     request.user = user;

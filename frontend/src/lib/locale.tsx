@@ -1,0 +1,214 @@
+import { createContext, use, useEffect, useState, type ReactNode } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+const fr = {
+  loginTitle: "Bon retour.",
+  loginSubtitle: "Vos expériences font la différence.",
+  email: "Email",
+  password: "Mot de passe",
+  name: "Votre nom",
+  login: "Se connecter",
+  register: "Créer un compte",
+  registerTitle: "Votre avis compte.",
+  registerSubtitle: "Rejoignez Vero. Partagez vos expériences.",
+  forgot: "Mot de passe oublié ?",
+  forgotTitle: "On vous aide.",
+  forgotSubtitle: "Recevez un lien pour choisir un nouveau mot de passe.",
+  sendReset: "Envoyer le lien",
+  resetTitle: "Un nouveau départ.",
+  resetSubtitle: "Choisissez votre nouveau mot de passe.",
+  newPassword: "Nouveau mot de passe",
+  reset: "Enregistrer le mot de passe",
+  google: "Continuer avec Google",
+  googleDisabled: "Google sera disponible après configuration.",
+  or: "ou",
+  noAccount: "Pas encore de compte ?",
+  hasAccount: "Déjà un compte ?",
+  back: "Retour",
+  search: "Rechercher",
+  write: "Écrire un avis",
+  profile: "Profil",
+  loading: "Chargement…",
+  retry: "Réessayer",
+  required: "Complétez les champs demandés.",
+  network: "Connexion impossible. Réessayez.",
+  passwordRule: "8 caractères minimum, avec une lettre et un chiffre.",
+  mismatch: "Les mots de passe ne correspondent pas.",
+  confirmPassword: "Confirmer le mot de passe",
+  checkEmail:
+    "Si votre compte permet la récupération, un email vous a été envoyé.",
+  passwordUpdated: "Mot de passe enregistré. Connectez-vous.",
+  signOut: "Se déconnecter",
+  account: "Mon compte",
+  save: "Enregistrer",
+  saved: "Enregistré.",
+  currentPassword: "Mot de passe actuel",
+  changePassword: "Changer le mot de passe",
+  deleteAccount: "Supprimer mon compte",
+  deleteExplain:
+    "Votre profil sera anonymisé et vos avis retirés. Confirmez pour continuer.",
+  confirmDelete: "Confirmer la suppression",
+  cancel: "Annuler",
+  linkGoogle: "Lier mon compte Google",
+  linkRequired:
+    "Connectez-vous avec votre mot de passe, puis liez Google depuis votre profil.",
+  unavailable: "Ce contenu est indisponible.",
+  searchTitle: "Avant d’acheter, vérifiez.",
+  searchSubtitle: "Un nom, un lien. Des avis qui comptent.",
+  searchHint: "Nom de boutique ou lien",
+  results: "Résultats",
+  addShop: "Ajouter une boutique",
+  noResults: "Aucune boutique trouvée.",
+  noResultsHelp: "Ajoutez-la et partagez votre expérience.",
+  shopName: "Nom de la boutique",
+  shopLink: "Lien Instagram, Facebook ou site",
+  addShopTitle: "Une boutique à partager.",
+  addShopSubtitle: "Un nom et un lien suffisent.",
+  continueReview: "Continuer vers mon avis",
+  noReviews: "Pas encore d’avis",
+  reviews: "avis",
+  shopAdded: "Boutique ajoutée.",
+  reviewTitle: "Votre expérience.",
+  reviewSubtitle:
+    "Votre boutique est sélectionnée. Votre brouillon est conservé.",
+  reviewNext: "La publication des avis arrive à la phase 06.",
+  draftLabel: "Votre expérience (brouillon)",
+  product: "Produit (facultatif)",
+  selectShop: "Choisir une boutique",
+  changeShop: "Changer de boutique",
+  website: "Site web",
+  openShop: "Ouvrir la page",
+  error: "Une erreur est survenue.",
+  googleCanceled: "Connexion annulée. Votre brouillon est conservé.",
+  resetInvalid: "Ce lien est invalide ou expiré.",
+  recoveryDisabled: "La récupération par email n’est pas configurée.",
+  sessionExpired: "Votre session a expiré. Reconnectez-vous.",
+  seeShop: "Voir la boutique",
+  next: "Voir la suite",
+  shopNotFound: "Boutique introuvable.",
+  nameHint: "Ex. : Boutique Sousse",
+  linkHint: "https://instagram.com/votre.boutique",
+};
+const ar: typeof fr = {
+  loginTitle: "مرحبا بيك.",
+  loginSubtitle: "تجربتك تعاون الناس تختار.",
+  email: "البريد الإلكتروني",
+  password: "كلمة المرور",
+  name: "اسمك",
+  login: "تسجيل الدخول",
+  register: "إنشاء حساب",
+  registerTitle: "رأيك يهمّنا.",
+  registerSubtitle: "انضمّ إلى فيرو وشارك تجربتك.",
+  forgot: "نسيت كلمة المرور؟",
+  forgotTitle: "نعاونك ترجع.",
+  forgotSubtitle: "نرسلولك رابط لاختيار كلمة مرور جديدة.",
+  sendReset: "إرسال الرابط",
+  resetTitle: "بداية جديدة.",
+  resetSubtitle: "اختار كلمة مرور جديدة.",
+  newPassword: "كلمة المرور الجديدة",
+  reset: "حفظ كلمة المرور",
+  google: "الدخول مع Google",
+  googleDisabled: "Google يتفعّل بعد إضافة الإعدادات.",
+  or: "أو",
+  noAccount: "ما عندكش حساب؟",
+  hasAccount: "عندك حساب؟",
+  back: "رجوع",
+  search: "البحث",
+  write: "اكتب رأيك",
+  profile: "حسابي",
+  loading: "جار التحميل…",
+  retry: "إعادة المحاولة",
+  required: "كمّل الخانات المطلوبة.",
+  network: "تعذّر الاتصال. عاود المحاولة.",
+  passwordRule: "8 أحرف على الأقل، فيها حرف لاتيني ورقم.",
+  mismatch: "كلمات المرور مش متطابقة.",
+  confirmPassword: "تأكيد كلمة المرور",
+  checkEmail: "إذا حسابك يسمح باسترجاع كلمة المرور، بعثنالك رسالة.",
+  passwordUpdated: "تمّ الحفظ. سجّل دخولك.",
+  signOut: "تسجيل الخروج",
+  account: "حسابي",
+  save: "حفظ",
+  saved: "تمّ الحفظ.",
+  currentPassword: "كلمة المرور الحالية",
+  changePassword: "تغيير كلمة المرور",
+  deleteAccount: "حذف حسابي",
+  deleteExplain: "باش نخفيوا هويتك ونحذفوا آراءك. أكّد باش تواصل.",
+  confirmDelete: "تأكيد الحذف",
+  cancel: "إلغاء",
+  linkGoogle: "ربط حساب Google",
+  linkRequired: "ادخل بكلمة المرور وبعد اربط Google من حسابك.",
+  unavailable: "المحتوى هذا مش متاح.",
+  searchTitle: "قبل ما تشري، ثبّت.",
+  searchSubtitle: "اسم أو رابط. آراء تعاونك تختار.",
+  searchHint: "اسم المحل أو الرابط",
+  results: "النتائج",
+  addShop: "إضافة محل",
+  noResults: "ما لقيناش المحل.",
+  noResultsHelp: "زيدو وشارك تجربتك.",
+  shopName: "اسم المحل",
+  shopLink: "رابط Instagram أو Facebook أو موقع",
+  addShopTitle: "محل يستحقّ المشاركة.",
+  addShopSubtitle: "اسم ورابط يكفّيو.",
+  continueReview: "واصل لكتابة رأيي",
+  noReviews: "ما فماش آراء توّا",
+  reviews: "آراء",
+  shopAdded: "تمّت الإضافة.",
+  reviewTitle: "تجربتك.",
+  reviewSubtitle: "المحل تمّ اختياره. مسودّتك محفوظة.",
+  reviewNext: "نشر الآراء يتوفّر في المرحلة 06.",
+  draftLabel: "تجربتك (مسودّة)",
+  product: "المنتج (اختياري)",
+  selectShop: "اختار محل",
+  changeShop: "تغيير المحل",
+  website: "موقع",
+  openShop: "افتح الصفحة",
+  error: "صار خطأ.",
+  googleCanceled: "تمّ الإلغاء. مسودّتك محفوظة.",
+  resetInvalid: "الرابط غير صالح أو انتهت مدّته.",
+  recoveryDisabled: "استرجاع كلمة المرور مش مفعّل.",
+  sessionExpired: "انتهت الجلسة. عاود الدخول.",
+  seeShop: "شوف المحل",
+  next: "المزيد",
+  shopNotFound: "المحل مش موجود.",
+  nameHint: "مثال: محل سوسة",
+  linkHint: "https://instagram.com/votre.boutique",
+};
+type LocaleValue = {
+  language: "fr" | "ar";
+  rtl: boolean;
+  t: typeof fr;
+  setLanguage: (value: "fr" | "ar") => void;
+};
+const Context = createContext<LocaleValue>({
+  language: "fr",
+  rtl: false,
+  t: fr,
+  setLanguage: () => {},
+});
+export function LocaleProvider({ children }: { children: ReactNode }) {
+  const [language, update] = useState<"fr" | "ar">("fr");
+  useEffect(() => {
+    void AsyncStorage.getItem("vero.locale")
+      .then((value) => {
+        if (value === "ar") update("ar");
+      })
+      .catch(() => {});
+  }, []);
+  const setLanguage = (value: "fr" | "ar") => {
+    update(value);
+    void AsyncStorage.setItem("vero.locale", value).catch(() => {});
+  };
+  return (
+    <Context
+      value={{
+        language,
+        rtl: language === "ar",
+        t: language === "ar" ? ar : fr,
+        setLanguage,
+      }}
+    >
+      {children}
+    </Context>
+  );
+}
+export const useLocale = () => use(Context);

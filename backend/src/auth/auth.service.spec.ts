@@ -1,5 +1,6 @@
 import { ConflictException, UnauthorizedException } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
+import { SessionsService } from './sessions.service';
+import { GoogleService } from './google.service';
 import * as bcrypt from 'bcrypt';
 
 import { AuthService } from './auth.service';
@@ -9,6 +10,7 @@ describe('AuthService', () => {
   let service: AuthService;
 
   const prisma = {
+    $transaction: jest.fn(async (callback) => callback(prisma)),
     user: {
       findUnique: jest.fn(),
       create: jest.fn(),
@@ -16,8 +18,12 @@ describe('AuthService', () => {
     },
   };
 
-  const jwtService = {
-    signAsync: jest.fn().mockResolvedValue('test-jwt-token'),
+  const sessions = {
+    create: jest.fn(async (user) => ({
+      user,
+      accessToken: 'test-jwt-token',
+      refreshToken: 'test-refresh-token',
+    })),
   };
 
   beforeEach(() => {
@@ -25,7 +31,8 @@ describe('AuthService', () => {
 
     service = new AuthService(
       prisma as unknown as PrismaService,
-      jwtService as unknown as JwtService,
+      sessions as unknown as SessionsService,
+      {} as GoogleService,
     );
   });
 
@@ -64,6 +71,7 @@ describe('AuthService', () => {
 
     it('should reject an existing email', async () => {
       prisma.user.findUnique.mockResolvedValue({ id: 'user-1' });
+      prisma.user.create.mockRejectedValueOnce({ code: 'P2002' });
 
       await expect(
         service.register({
@@ -73,7 +81,7 @@ describe('AuthService', () => {
         }),
       ).rejects.toThrow(ConflictException);
 
-      expect(prisma.user.create).not.toHaveBeenCalled();
+      expect(sessions.create).not.toHaveBeenCalled();
     });
   });
 

@@ -7,6 +7,7 @@ import { spawn, spawnSync, type ChildProcess } from 'node:child_process';
 import { setTimeout as delay } from 'node:timers/promises';
 import bcrypt from 'bcrypt';
 import { Client } from 'pg';
+import { authScenarios } from './auth-scenarios';
 
 // These tests create and delete ONLY their own randomly named databases on local Docker.
 const adminUrl = process.env.TEST_DATABASE_ADMIN_URL;
@@ -345,7 +346,10 @@ async function testFoundation() {
   console.info(
     'PASS fresh migration/seed, idempotent seed, production guard, repeated reviews, Google-only storage, constraints and concurrent uniqueness',
   );
-  if (process.argv.includes('--http')) await testHttp(db.url, googleId);
+  if (process.argv.includes('--http')) {
+    await authScenarios(db.url);
+    await testHttp(db.url, googleId);
+  }
 }
 
 async function testHttp(databaseUrl: string, googleId: string) {
@@ -365,6 +369,11 @@ async function testHttp(databaseUrl: string, googleId: string) {
       PORT: String(port),
       JWT_SECRET: randomBytes(48).toString('hex'),
       NODE_ENV: 'test',
+      CORS_ORIGIN: 'http://localhost:8081',
+      SMTP_HOST: '127.0.0.1',
+      SMTP_PORT: '1025',
+      MAIL_FROM: 'Vero <tests@vero.invalid>',
+      PASSWORD_RESET_URL: 'http://localhost:8081/reset-password',
     },
     stdio: ['ignore', 'pipe', 'pipe'],
   });

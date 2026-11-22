@@ -18,7 +18,11 @@ async function bootstrap() {
   app.use(helmet());
 
   app.enableCors({
-    origin: config.get<string>('app.corsOrigin'),
+    origin: config
+      .getOrThrow<string>('app.corsOrigin')
+      .split(',')
+      .map((origin) => origin.trim()),
+    credentials: true,
   });
 
   app.useGlobalPipes(

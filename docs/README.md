@@ -1,6 +1,6 @@
 # Vero implementation guide
 
-Status: tasks 01/02 specifications and task 03 backend foundation completed on 2026-11-22. Local PostgreSQL uses Docker Compose and Vero migrations are applied. Consumer feature runtime acceptance remains pending. Next: task 04 authentication including Google.
+Status: tasks 01/02 specifications, task 03 foundation and task 04 authentication implemented on 2026-11-22. Local PostgreSQL/Mailpit run in Docker. Google IDs are user-deferred and its button stays disabled; live Google/native verification remains pending. Next: task 05 shops/search. Deployment target: Heroku backend with the existing Supabase vero database after local testing.
 
 ## Coding order
 
@@ -46,4 +46,5 @@ Design deliverables and runtime acceptance are tracked separately. Check a runti
 | 01 - Product and UX | Complete: routes, flows, form rules and acceptance scenarios | Pending implementation |
 | 02 - Architecture and data | Complete: module boundaries, ER diagram, data dictionary, visibility and transactions | Pending task 03 migrations and later services |
 | 03 - Foundation and migration | Implemented: Vero schema, forward migration, roles, module boundaries and safe seed | Build/lint, unit tests, isolated migration/concurrency and HTTP checks passed |
-| 04-10 | Planned | Not started |
+| 04 - Authentication | Implemented: Google boundary/linking, sessions, recovery, deletion, Expo auth screens and drafts | Local service/HTTP/browser verified; live Google and native device verification pending |
+| 05-10 | Planned | Not started |

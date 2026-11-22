@@ -150,10 +150,19 @@ export class UsersService {
       }
     }
 
-    return this.prisma.user.update({
-      where: { id },
-      data: dto,
-      select: userSelect,
+    return this.prisma.$transaction(async (tx) => {
+      await tx.$queryRaw`SELECT id FROM users WHERE id = ${id}::uuid FOR UPDATE`;
+      const user = await tx.user.update({
+        where: { id },
+        data: dto,
+        select: userSelect,
+      });
+      if (dto.isActive === false)
+        await tx.session.updateMany({
+          where: { userId: id },
+          data: { revokedAt: new Date() },
+        });
+      return user;
     });
   }
 
@@ -166,10 +175,6 @@ export class UsersService {
 
     await this.findOne(id);
 
-    return this.prisma.user.update({
-      where: { id },
-      data: { isActive: false },
-      select: userSelect,
-    });
+    return this.update(id, { isActive: false }, adminId);
   }
 }

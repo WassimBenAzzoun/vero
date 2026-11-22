@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Role } from '../../generated/prisma/client';
 
 export class AuthUserDto {
@@ -33,4 +33,9 @@ export class AuthResponseDto {
 
   @ApiProperty()
   accessToken: string;
+
+  @ApiPropertyOptional({
+    description: 'Native clients only; web uses an HttpOnly cookie',
+  })
+  refreshToken?: string;
 }

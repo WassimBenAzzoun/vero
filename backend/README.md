@@ -1,6 +1,6 @@
 # Vero backend
 
-NestJS REST API with Prisma 7 and PostgreSQL 16. Task 03 provides the Vero schema, module boundaries and existing email/password auth with USER/ADMIN permissions. Google sign-in and refresh/recovery flows are task 04; shop/review/feed/media/moderation routes arrive in later tasks.
+NestJS REST API with Prisma 7 and local Docker PostgreSQL 16. Task 03 provides the Vero foundation; task 04 adds session rotation, Google sign-in/linking, recovery and account deletion. Google endpoints stay disabled until client IDs are supplied. Shops and other consumer features follow their numbered phases. Production target: Heroku vero-app with Supabase Postgres; local credentials are never deployed.
 
 ## Local setup
 
