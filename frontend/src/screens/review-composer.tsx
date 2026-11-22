@@ -12,6 +12,7 @@ import { uploadPhoto } from "../lib/upload-photo";
 import type { Review } from "../lib/reviews";
 import { Button, Field, Notice, Page, T, TextAction } from "../components/ui";
 import { colors } from "../theme";
+import { PurchaseDateField } from "../components/purchase-date-field";
 export function ReviewComposer({ reviewId }: { reviewId?: string }) {
   const { user, ready: authReady } = useAuth();
   const { draft, update: saveDraft, clear, ready } = useDraft();
@@ -116,7 +117,7 @@ export function ReviewComposer({ reviewId }: { reviewId?: string }) {
         (!/^\d{4}-\d{2}-\d{2}$/.test(form.purchaseDate) ||
           form.purchaseDate > new Date().toISOString().slice(0, 10))
       )
-        throw new Error(t.purchaseDate + " : YYYY-MM-DD");
+        throw new Error(t.invalidPurchaseDate);
       for (let i = 0; i < photos.length; i++) {
         if (photos[i].assetId || (skipFailed && photos[i].status === "failed"))
           continue;
@@ -148,7 +149,9 @@ export function ReviewComposer({ reviewId }: { reviewId?: string }) {
         rating: form.rating,
         text: form.text.trim(),
         productName: form.productName.trim(),
-        ...(form.purchaseDate ? { purchaseDate: form.purchaseDate } : {}),
+        ...(form.purchaseDate || reviewId
+          ? { purchaseDate: form.purchaseDate || null }
+          : {}),
         imageIds,
       };
       let review: Review;
@@ -251,12 +254,9 @@ export function ReviewComposer({ reviewId }: { reviewId?: string }) {
         onChangeText={(productName) => update({ productName })}
         maxLength={150}
       />
-      <Field
-        label={t.purchaseDate}
-        placeholder="YYYY-MM-DD"
+      <PurchaseDateField
         value={form.purchaseDate || ""}
-        onChangeText={(purchaseDate) => update({ purchaseDate })}
-        maxLength={10}
+        onChange={(purchaseDate) => update({ purchaseDate })}
       />
       {!!form.photos?.length && (
         <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 12 }}>

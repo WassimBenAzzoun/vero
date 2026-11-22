@@ -21,7 +21,7 @@ import {
 @Injectable()
 export class ReviewsService {
   constructor(private readonly prisma: PrismaService) {}
-  private date(value?: string) {
+  private date(value?: string | null) {
     if (!value) return undefined;
     const parsed = new Date(`${value}T00:00:00Z`);
     if (
@@ -245,7 +245,9 @@ export class ReviewsService {
               ...(dto.productName !== undefined
                 ? { productName: dto.productName.trim() || null }
                 : {}),
-              ...(dto.purchaseDate !== undefined ? { purchaseDate: date } : {}),
+              ...(dto.purchaseDate !== undefined
+                ? { purchaseDate: date ?? null }
+                : {}),
             },
       });
       if (remove) {

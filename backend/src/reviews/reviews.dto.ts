@@ -30,10 +30,10 @@ export class ReviewFieldsDto {
   @IsString()
   @MaxLength(150)
   productName?: string;
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ type: String, nullable: true })
   @IsOptional()
   @IsDateString({ strict: true })
-  purchaseDate?: string;
+  purchaseDate?: string | null;
   @ApiPropertyOptional({ type: [String] })
   @IsOptional()
   @IsArray()

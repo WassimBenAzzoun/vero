@@ -105,6 +105,9 @@ const fr = {
   remove: "Retirer",
   publishWithoutFailed: "Publier sans les photos en échec",
   purchaseDate: "Date d’achat (facultatif)",
+  clearPurchaseDate: "Effacer la date",
+  invalidPurchaseDate:
+    "Choisissez une date d’achat valide, aujourd’hui ou avant.",
   edit: "Modifier",
   deleteReview: "Supprimer cet avis",
   myReviews: "Mes avis",
@@ -249,6 +252,8 @@ const ar: typeof fr = {
   remove: "إزالة",
   publishWithoutFailed: "انشر من غير الصور الفاشلة",
   purchaseDate: "تاريخ الشراء (اختياري)",
+  clearPurchaseDate: "امسح التاريخ",
+  invalidPurchaseDate: "اختار تاريخ شراء صحيح، اليوم أو قبل.",
   edit: "تعديل",
   deleteReview: "حذف الرأي",
   myReviews: "آرائي",
