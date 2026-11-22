@@ -1,5 +1,7 @@
 import { useState } from "react";
+import { View } from "react-native";
 import { router } from "expo-router";
+import { randomUUID } from "expo-crypto";
 import { Button, Field, Notice, Page, TextAction } from "../components/ui";
 import { useAuth } from "../lib/auth";
 import { post } from "../lib/api";
@@ -12,10 +14,13 @@ export function AddShopScreen() {
   const { t } = useLocale();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const extraLinks = draft.pendingExtraLinks ?? [];
   const save = async () => {
     setError("");
-    if (!draft.pendingName.trim() || !draft.pendingLink.trim())
-      return setError(t.required);
+    const links = [draft.pendingLink, ...extraLinks.map(({ url }) => url)]
+      .map((link) => link.trim())
+      .filter(Boolean);
+    if (!draft.pendingName.trim() || !links.length) return setError(t.required);
     if (!user) {
       router.push({ pathname: "/login", params: { returnTo: "/shops/new" } });
       return;
@@ -24,9 +29,15 @@ export function AddShopScreen() {
     try {
       const result = await post<{ shop: Shop; created: boolean }>("/shops", {
         name: draft.pendingName.trim(),
-        links: [draft.pendingLink.trim()],
+        links,
       });
-      update({ shopId: result.shop.id, shopName: result.shop.name });
+      update({
+        shopId: result.shop.id,
+        shopName: result.shop.name,
+        pendingName: "",
+        pendingLink: "",
+        pendingExtraLinks: [],
+      });
       router.replace("/reviews/new");
     } catch (value) {
       setError(value instanceof Error ? value.message : t.network);
@@ -60,6 +71,45 @@ export function AddShopScreen() {
         maxLength={2000}
         testID="shop-link"
       />
+      {extraLinks.map(({ id, url }) => (
+        <View key={id} style={{ gap: 4 }}>
+          <Field
+            label={t.extraShopLink}
+            placeholder={t.linkHint}
+            value={url}
+            onChangeText={(value) =>
+              update({
+                pendingExtraLinks: extraLinks.map((link) =>
+                  link.id === id ? { ...link, url: value } : link,
+                ),
+              })
+            }
+            autoCapitalize="none"
+            autoCorrect={false}
+            maxLength={2000}
+          />
+          <TextAction
+            title={t.removeShopLink}
+            onPress={() =>
+              update({
+                pendingExtraLinks: extraLinks.filter((link) => link.id !== id),
+              })
+            }
+          />
+        </View>
+      ))}
+      {extraLinks.length < 4 && (
+        <Button
+          title={`+ ${t.addShopLink}`}
+          secondary
+          disabled={busy}
+          onPress={() =>
+            update({
+              pendingExtraLinks: [...extraLinks, { id: randomUUID(), url: "" }],
+            })
+          }
+        />
+      )}
       <Notice error text={error} />
       <Button
         title={user ? t.continueReview : t.login}
@@ -67,7 +117,7 @@ export function AddShopScreen() {
         onPress={() => void save()}
         testID="shop-save"
       />
-      <TextAction title={t.back} onPress={() => router.push("/")} />
+      <TextAction title={t.back} onPress={() => router.navigate("/search")} />
     </Page>
   );
 }

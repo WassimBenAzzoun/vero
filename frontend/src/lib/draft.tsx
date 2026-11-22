@@ -21,6 +21,7 @@ export type Draft = {
   shopName?: string;
   pendingName: string;
   pendingLink: string;
+  pendingExtraLinks?: { id: string; url: string }[];
   text: string;
   productName: string;
   purchaseDate?: string;

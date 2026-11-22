@@ -48,7 +48,13 @@ export function SearchScreen() {
   const add = () => {
     const q = draft.query.trim();
     const link = /^(https?:|www\.|[^\s/]+\.[a-z]{2,}(?:\/|$))/i.test(q);
-    update({ pendingName: link ? "" : q, pendingLink: link ? q : "" });
+    if (q && q !== (link ? draft.pendingLink : draft.pendingName)) {
+      update({
+        pendingName: link ? "" : q,
+        pendingLink: link ? q : "",
+        pendingExtraLinks: [],
+      });
+    }
     router.push("/shops/new");
   };
   const choose = (shop: Shop) => {
@@ -79,6 +85,13 @@ export function SearchScreen() {
         busy={busy}
         onPress={() => void search(draft.query)}
         testID="shop-search"
+      />
+      <Button
+        title={`+ ${t.addShop}`}
+        secondary
+        disabled={!ready}
+        onPress={add}
+        testID="add-shop-top"
       />
       <T
         style={{
@@ -175,6 +188,7 @@ export function SearchScreen() {
         <Button
           title={`+ ${t.addShop}`}
           secondary
+          disabled={!ready}
           onPress={add}
           testID="add-shop"
         />
