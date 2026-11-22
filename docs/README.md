@@ -47,4 +47,5 @@ Design deliverables and runtime acceptance are tracked separately. Check a runti
 | 02 - Architecture and data | Complete: module boundaries, ER diagram, data dictionary, visibility and transactions | Pending task 03 migrations and later services |
 | 03 - Foundation and migration | Implemented: Vero schema, forward migration, roles, module boundaries and safe seed | Build/lint, unit tests, isolated migration/concurrency and HTTP checks passed |
 | 04 - Authentication | Implemented: Google boundary/linking, sessions, recovery, deletion, Expo auth screens and drafts | Local service/HTTP/browser verified; live Google and native device verification pending |
-| 05-10 | Planned | Not started |
+| 05 - Shops/search | Implemented: canonical links, search, profiles, duplicate-safe creation and Expo flows | Unit, isolated database and real browser flows passed |
+| 06-10 | In progress | Pending implementation and verification |

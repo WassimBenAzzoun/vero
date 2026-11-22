@@ -1,5 +1,10 @@
 import { Module } from '@nestjs/common';
+import { ShopsService } from './shops.service';
+import { ShopsController } from './shops.controller';
 
-// Domain boundary; routes and services arrive in the corresponding feature task.
-@Module({})
+@Module({
+  providers: [ShopsService],
+  controllers: [ShopsController],
+  exports: [ShopsService],
+})
 export class ShopsModule {}

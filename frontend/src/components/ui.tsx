@@ -11,7 +11,7 @@ import {
   type TextProps,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { router } from "expo-router";
+import { router, usePathname } from "expo-router";
 import Svg, { Circle, Path } from "react-native-svg";
 import { colors, fonts } from "../theme";
 import { useLocale } from "../lib/locale";
@@ -135,13 +135,20 @@ export function Button({
 export function Field({
   label,
   password,
+  hideLabel,
   ...props
-}: TextInputProps & { label: string; password?: boolean }) {
+}: TextInputProps & {
+  label: string;
+  password?: boolean;
+  hideLabel?: boolean;
+}) {
   const { rtl } = useLocale();
   const [visible, setVisible] = useState(false);
   return (
     <View style={{ gap: 8 }}>
-      <T style={{ fontFamily: rtl ? fonts.arabic : fonts.strong }}>{label}</T>
+      {!hideLabel && (
+        <T style={{ fontFamily: rtl ? fonts.arabic : fonts.strong }}>{label}</T>
+      )}
       <View
         style={{
           flexDirection: "row",
@@ -165,6 +172,7 @@ export function Field({
               color: colors.ink,
               fontFamily: rtl ? fonts.arabic : fonts.body,
               fontSize: 16,
+              borderRadius: 12,
               textAlign:
                 props.keyboardType === "email-address"
                   ? "left"
@@ -246,6 +254,7 @@ export function Page({
 }) {
   const { rtl, language, setLanguage, t } = useLocale();
   const insets = useSafeAreaInsets();
+  const pathname = usePathname();
   return (
     <KeyboardAvoidingView
       behavior={process.env.EXPO_OS === "ios" ? "padding" : undefined}
@@ -364,13 +373,65 @@ export function Page({
             [t.search, "/"],
             [t.write, "/reviews/new"],
             [t.profile, "/profile"],
-          ].map(([label, route]) => (
+          ].map(([label, route], index) => (
             <Pressable
               key={route}
               accessibilityRole="link"
               onPress={() => router.push(route as "/")}
-              style={{ padding: 8 }}
+              accessibilityState={{
+                selected:
+                  route === "/"
+                    ? pathname === "/" || pathname.startsWith("/shops")
+                    : pathname.startsWith(route),
+              }}
+              style={{ padding: 8, alignItems: "center", gap: 5, flex: 1 }}
             >
+              <Svg width={23} height={23} viewBox="0 0 24 24">
+                {index === 0 ? (
+                  <>
+                    <Circle
+                      cx="10"
+                      cy="10"
+                      r="7"
+                      fill="none"
+                      stroke={colors.ink}
+                      strokeWidth={1.8}
+                    />
+                    <Path
+                      d="M15 15L22 22"
+                      stroke={colors.ink}
+                      strokeWidth={1.8}
+                      strokeLinecap="round"
+                    />
+                  </>
+                ) : index === 1 ? (
+                  <Path
+                    d="M4 16L3 22L9 21L21 9L15 3Z M13 5L19 11"
+                    fill="none"
+                    stroke={colors.ink}
+                    strokeWidth={1.8}
+                    strokeLinejoin="round"
+                  />
+                ) : (
+                  <>
+                    <Circle
+                      cx="12"
+                      cy="7"
+                      r="4"
+                      fill="none"
+                      stroke={colors.ink}
+                      strokeWidth={1.8}
+                    />
+                    <Path
+                      d="M4 22V18C4 12 20 12 20 18V22"
+                      fill="none"
+                      stroke={colors.ink}
+                      strokeWidth={1.8}
+                      strokeLinecap="round"
+                    />
+                  </>
+                )}
+              </Svg>
               <T
                 style={{
                   fontSize: 12,
@@ -379,6 +440,20 @@ export function Page({
               >
                 {label}
               </T>
+              <View
+                style={{
+                  height: 3,
+                  width: 40,
+                  borderRadius: 2,
+                  backgroundColor: (
+                    route === "/"
+                      ? pathname === "/" || pathname.startsWith("/shops")
+                      : pathname.startsWith(route)
+                  )
+                    ? colors.green
+                    : "transparent",
+                }}
+              />
             </Pressable>
           ))}
         </View>
