@@ -58,3 +58,6 @@ Local Mailpit runs at http://localhost:8025 with SMTP on 1025. Production SMTP i
 - [Google Identity Services setup](https://developers.google.com/identity/gsi/web/guides/get-google-api-clientid) - web client and origin setup.
 
 Recheck these references against installed versions before coding.
+
+Configuration update: public web/Android IDs imported from the supplied files; package com.vero.app confirmed. User confirmed the production web origin was added in Google Cloud. iOS Google stays unconfigured. Live Google sign-in and Android signing SHA matching still require verification.
+
