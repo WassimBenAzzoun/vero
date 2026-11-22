@@ -1,6 +1,6 @@
 # Vero implementation guide
 
-Status: planning documents created on 2026-11-22. Application implementation is not part of this documentation change.
+Status: planning documents created on 2026-11-22. Task 01 specification completed; application implementation starts at task 03. Runtime acceptance remains pending.
 
 ## Coding order
 
@@ -35,4 +35,12 @@ Implement each step with its relevant frontend flow rather than completing the e
 3. See that same review in Latest, like/comment on it, and exercise Trending.
 4. Report it -> admin hides it -> it disappears from public views and rating totals.
 
-All implementation checkboxes start unchecked. Defaults such as upload limits and ranking weights are implementation proposals and can be tuned without adding submission steps.
+Design deliverables and runtime acceptance are tracked separately. Check a runtime task only after implementation and verification. Defaults such as upload limits and ranking weights can be tuned without adding submission steps.
+
+## Task progress
+
+| Task | Design deliverable | Runtime verification |
+| --- | --- | --- |
+| 01 - Product and UX | Complete: routes, flows, form rules and acceptance scenarios | Pending implementation |
+| 02 - Architecture and data | Initial outline; detailed conception in progress | Pending task 03 migrations and later services |
+| 03-10 | Planned | Not started |
