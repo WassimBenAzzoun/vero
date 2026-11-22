@@ -13,11 +13,18 @@ export function AuthScreen({ mode }: { mode: Mode }) {
   const auth = useAuth();
   const { t } = useLocale();
   const params = useLocalSearchParams<{ returnTo?: string }>();
-  const destination = ["/reviews/new", "/shops/new", "/profile", "/"].includes(
-    params.returnTo || "",
-  )
-    ? params.returnTo!
-    : "/profile";
+  const destination =
+    [
+      "/reviews/new",
+      "/shops/new",
+      "/profile",
+      "/",
+      "/search",
+      "/my-reviews",
+    ].includes(params.returnTo || "") ||
+    /^\/reviews\/[a-f\d-]{36}$/i.test(params.returnTo || "")
+      ? params.returnTo!
+      : "/profile";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");

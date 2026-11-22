@@ -7,6 +7,7 @@ import type { Review } from "../lib/reviews";
 import { useLocale } from "../lib/locale";
 import { colors, fonts } from "../theme";
 import { Button, T, TextAction } from "./ui";
+import { ReviewActions } from "./review-actions";
 export function ReviewCard({
   review,
   detail = false,
@@ -117,6 +118,12 @@ export function ReviewCard({
               params: { id: review.id },
             })
           }
+        />
+      )}
+      {review.status === "PUBLISHED" && (
+        <ReviewActions
+          key={`${review.id}:${review.liked}:${review.likeCount}`}
+          review={review}
         />
       )}
       {children}

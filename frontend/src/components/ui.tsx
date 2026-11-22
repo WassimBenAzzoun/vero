@@ -370,7 +370,8 @@ export function Page({
           }}
         >
           {[
-            [t.search, "/"],
+            [t.feed, "/"],
+            [t.search, "/search"],
             [t.write, "/reviews/new"],
             [t.profile, "/profile"],
           ].map(([label, route], index) => (
@@ -388,6 +389,13 @@ export function Page({
             >
               <Svg width={23} height={23} viewBox="0 0 24 24">
                 {index === 0 ? (
+                  <Path
+                    d="M3 4H21 M3 12H21 M3 20H15"
+                    stroke={colors.ink}
+                    strokeWidth={1.8}
+                    strokeLinecap="round"
+                  />
+                ) : index === 1 ? (
                   <>
                     <Circle
                       cx="10"
@@ -404,7 +412,7 @@ export function Page({
                       strokeLinecap="round"
                     />
                   </>
-                ) : index === 1 ? (
+                ) : index === 2 ? (
                   <Path
                     d="M4 16L3 22L9 21L21 9L15 3Z M13 5L19 11"
                     fill="none"

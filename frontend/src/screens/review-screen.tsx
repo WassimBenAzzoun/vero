@@ -6,6 +6,7 @@ import { useLocale } from "../lib/locale";
 import type { Review } from "../lib/reviews";
 import { Button, Notice, Page, TextAction } from "../components/ui";
 import { ReviewCard } from "../components/review-card";
+import { Comments } from "../components/comments";
 export function ReviewScreen({ id }: { id: string }) {
   const { user } = useAuth();
   const { t } = useLocale();
@@ -47,6 +48,7 @@ export function ReviewScreen({ id }: { id: string }) {
       {review ? (
         <>
           <ReviewCard review={review} detail />
+          {review.status === "PUBLISHED" && <Comments id={id} />}
           {user?.id === review.author.id && review.status !== "DELETED" && (
             <>
               <TextAction

@@ -1,2 +1,1 @@
-import { SearchScreen } from "../screens/search-screen";
-export default SearchScreen;
+export { FeedScreen as default } from '../screens/feed-screen';
