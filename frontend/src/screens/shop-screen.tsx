@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { ActivityIndicator, View } from "react-native";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import * as Linking from "expo-linking";
 import { api } from "../lib/api";
 import { useDraft } from "../lib/draft";
@@ -8,6 +8,8 @@ import { useAuth } from "../lib/auth";
 import { useLocale } from "../lib/locale";
 import type { Shop } from "../lib/shops";
 import { Button, Notice, Page, T, TextAction } from "../components/ui";
+import { ReviewCard } from "../components/review-card";
+import type { ReviewPage } from "../lib/reviews";
 import { colors, fonts } from "../theme";
 export function ShopScreen({ id }: { id: string }) {
   const { user } = useAuth();
@@ -16,23 +18,38 @@ export function ShopScreen({ id }: { id: string }) {
   const [shop, setShop] = useState<Shop | null>(null);
   const [error, setError] = useState("");
   const [attempt, setAttempt] = useState(0);
-  useEffect(() => {
-    let mounted = true;
-    void api<Shop>(`/shops/${encodeURIComponent(id)}`)
-      .then((result) => {
-        if (mounted) {
-          setShop(result);
-          setError("");
-        }
-      })
-      .catch((value) => {
-        if (mounted)
-          setError(value instanceof Error ? value.message : t.network);
-      });
-    return () => {
-      mounted = false;
-    };
-  }, [id, attempt, t.network]);
+  const [reviews, setReviews] = useState<ReviewPage | null>(null);
+  const [stars, setStars] = useState<number>();
+  const [photos, setPhotos] = useState(false);
+  useFocusEffect(
+    useCallback(() => {
+      let mounted = true;
+      void api<Shop>(`/shops/${encodeURIComponent(id)}${attempt ? `?retry=${attempt}` : ''}`)
+        .then((result) => {
+          if (mounted) {
+            setShop(result);
+            setError("");
+            void api<ReviewPage>(
+              `/shops/${result.id}/reviews?${stars ? `stars=${stars}&` : ""}${photos ? "hasPhotos=true" : ""}`,
+            )
+              .then((value) => {
+                if (mounted) setReviews(value);
+              })
+              .catch((e) => {
+                if (mounted)
+                  setError(e instanceof Error ? e.message : t.network);
+              });
+          }
+        })
+        .catch((value) => {
+          if (mounted)
+            setError(value instanceof Error ? value.message : t.network);
+        });
+      return () => {
+        mounted = false;
+      };
+    }, [id, attempt, t.network, stars, photos]),
+  );
   const write = () => {
     if (!shop) return;
     update({ shopId: shop.id, shopName: shop.name });
@@ -136,6 +153,55 @@ export function ShopScreen({ id }: { id: string }) {
         />
       ))}
       <Button title={t.write} onPress={write} testID="shop-write" />
+      <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
+        {[undefined, 5, 4, 3, 2, 1].map((value) => (
+          <Button
+            key={value || "all"}
+            secondary={stars !== value}
+            title={value ? `${value} ★` : t.allReviews}
+            onPress={() => {
+              setStars(value);
+              setReviews(null);
+            }}
+          />
+        ))}
+        <Button
+          secondary={!photos}
+          title={language === "ar" ? "بالصور" : "Avec photos"}
+          onPress={() => {
+            setPhotos(!photos);
+            setReviews(null);
+          }}
+        />
+      </View>
+      {!reviews ? (
+        <Notice text={t.loading} />
+      ) : !reviews.items.length ? (
+        <Notice text={t.noItems} />
+      ) : (
+        reviews.items.map((review) => (
+          <ReviewCard key={review.id} review={review} />
+        ))
+      )}
+      {reviews?.nextCursor && (
+        <Button
+          title={t.next}
+          onPress={() => {
+            void api<ReviewPage>(
+              `/shops/${shop.id}/reviews?${stars ? `stars=${stars}&` : ""}${photos ? "hasPhotos=true&" : ""}cursor=${encodeURIComponent(reviews.nextCursor!)}`,
+            )
+              .then((value) =>
+                setReviews((before) => ({
+                  items: [...(before?.items || []), ...value.items],
+                  nextCursor: value.nextCursor,
+                })),
+              )
+              .catch((e) =>
+                setError(e instanceof Error ? e.message : t.network),
+              );
+          }}
+        />
+      )}
       <TextAction title={t.back} onPress={() => router.push("/")} />
     </Page>
   );

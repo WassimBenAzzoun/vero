@@ -8,6 +8,14 @@ import {
 } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 export type Draft = {
+  submissionId?: string;
+  photos?: {
+    localId: string;
+    uri: string;
+    assetId?: string;
+    status: "selected" | "uploading" | "ready" | "failed";
+    error?: string;
+  }[];
   query: string;
   shopId?: string;
   shopName?: string;
@@ -15,6 +23,7 @@ export type Draft = {
   pendingLink: string;
   text: string;
   productName: string;
+  purchaseDate?: string;
   rating: number;
 };
 const blank: Draft = {
@@ -40,7 +49,15 @@ export function DraftProvider({ children }: { children: ReactNode }) {
       .then((value) => {
         if (value) {
           const parsed = JSON.parse(value);
-          setDraft({ ...blank, ...parsed });
+          setDraft({
+            ...blank,
+            ...parsed,
+            photos: parsed.photos?.map((photo: any) =>
+              photo.status === "uploading"
+                ? { ...photo, status: "selected" }
+                : photo,
+            ),
+          });
         }
       })
       .catch(() => {})

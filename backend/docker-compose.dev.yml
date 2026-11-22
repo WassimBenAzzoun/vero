@@ -1,6 +1,24 @@
 name: vero
 
 services:
+  objectstore-init:
+    image: busybox:1.37
+    command: ['chown', '1000:1000', '/s3mockroot']
+    volumes:
+      - vero_object_data:/s3mockroot
+  objectstore:
+    image: adobe/s3mock:5.2.0
+    depends_on:
+      objectstore-init:
+        condition: service_completed_successfully
+    environment:
+      COM_ADOBE_TESTING_S3MOCK_STORE_INITIAL_BUCKETS: vero-reviews
+      COM_ADOBE_TESTING_S3MOCK_STORE_ROOT: /s3mockroot
+      COM_ADOBE_TESTING_S3MOCK_STORE_RETAIN_FILES_ON_EXIT: 'true'
+    ports:
+      - '127.0.0.1:9090:9090'
+    volumes:
+      - vero_object_data:/s3mockroot
   mailpit:
     image: axllent/mailpit:v1.27
     restart: unless-stopped
@@ -26,5 +44,7 @@ services:
       start_period: 10s
 
 volumes:
+  vero_object_data:
+    name: vero_object_data
   vero_postgres_data:
     name: vero_postgres_data

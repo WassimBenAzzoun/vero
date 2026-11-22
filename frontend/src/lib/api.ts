@@ -50,7 +50,9 @@ async function raw<T>(path: string, options: RequestInit = {}): Promise<T> {
       signal: controller.signal,
       credentials: "include",
       headers: {
-        "Content-Type": "application/json",
+        ...(options.body instanceof FormData
+          ? {}
+          : { "Content-Type": "application/json" }),
         ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
         ...options.headers,
       },
@@ -111,7 +113,17 @@ export async function api<T>(
         path.startsWith("/auth/me") ||
         path === "/auth/google/link")
     ) {
-      await refreshSession();
+      try {
+        await refreshSession();
+      } catch (refreshError) {
+        if (
+          (!options.method || options.method === "GET") &&
+          refreshError instanceof ApiError &&
+          refreshError.status === 401
+        )
+          return raw<T>(path, options);
+        throw refreshError;
+      }
       return raw<T>(path, options);
     }
     throw error;

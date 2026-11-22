@@ -11,6 +11,7 @@ import { Request } from 'express';
 
 import { PrismaService } from '../../prisma/prisma.service';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
+import { OPTIONAL_AUTH_KEY } from '../decorators/optional-auth.decorator';
 
 interface JwtPayload {
   sub: string;
@@ -39,6 +40,15 @@ export class JwtAuthGuard implements CanActivate {
       .getRequest<Request & { user?: Record<string, unknown> }>();
 
     const authHeader = request.headers.authorization;
+
+    if (
+      !authHeader &&
+      this.reflector.getAllAndOverride<boolean>(OPTIONAL_AUTH_KEY, [
+        context.getHandler(),
+        context.getClass(),
+      ])
+    )
+      return true;
 
     if (!authHeader) {
       throw new UnauthorizedException('Missing authorization header');

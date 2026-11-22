@@ -9,6 +9,7 @@ import bcrypt from 'bcrypt';
 import { Client } from 'pg';
 import { authScenarios } from './auth-scenarios';
 import { shopScenarios } from './shop-scenarios';
+import { reviewScenarios } from './review-scenarios';
 
 // These tests create and delete ONLY their own randomly named databases on local Docker.
 const adminUrl = process.env.TEST_DATABASE_ADMIN_URL;
@@ -350,6 +351,7 @@ async function testFoundation() {
   if (process.argv.includes('--http')) {
     await authScenarios(db.url);
     await shopScenarios(db.url);
+    await reviewScenarios(db.url);
     await testHttp(db.url, googleId);
   }
 }

@@ -63,6 +63,10 @@ export function ProfileScreen() {
   return (
     <Page title={user.fullName} subtitle={user.email}>
       <Notice text={message} />
+      <TextAction
+        title={t.myReviews}
+        onPress={() => router.push("/my-reviews")}
+      />
       <Field
         label={t.currentPassword}
         password
