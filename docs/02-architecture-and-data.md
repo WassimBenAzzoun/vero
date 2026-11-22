@@ -1,6 +1,6 @@
 # 02 - Architecture and data conception
 
-Status: design complete on 2026-11-22. This is the target model for task 03; the live Prisma schema still contains CloudOps models. Database concurrency and service behavior remain unverified until implemented.
+Status: design completed on 2026-11-22; task 03 now implements the Vero Prisma model and forward migration. Database constraints and concurrent uniqueness have been verified; consumer services and their visibility behavior remain later tasks.
 
 ## Architecture
 
@@ -56,7 +56,7 @@ Use a private bucket and API-authorized or short-lived signed reads. Public revi
 ## Acceptance
 
 - [x] Diagram/model review matches the product rules and Google-only accounts: see the relationships, data dictionary and rule traceability below.
-- [ ] Database constraints survive concurrent requests.
+- [x] Database constraints survive concurrent requests: task 03 verifies concurrent canonical-link/like uniqueness and SQL invariant rejection in isolated Docker databases.
 - [ ] Visibility is applied consistently to ratings, search, feed, comments and media.
 
 ## Module ownership
@@ -183,6 +183,6 @@ Operations racing with hide/merge must coordinate on parent rows or use appropri
 - [x] Fields, constraints, indexes, media access and transaction boundaries specified.
 - [x] Google-only accounts, repeated reviews, feed identity and admin visibility checked against task 01.
 - [x] Docker selected for local PostgreSQL; executable setup documented separately.
-- [ ] Task 03 Prisma/SQL implementation and database concurrency checks completed.
+- [x] Task 03 Prisma/SQL implementation and database concurrency checks completed.
 
-This task completes conception. It does not apply Vero tables, install frontend dependencies or implement API routes.
+Task 02 completed conception; task 03 subsequently applied the Vero tables. Frontend dependencies and consumer API routes remain later work.

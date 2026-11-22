@@ -9,281 +9,373 @@ datasource db {
 
 enum Role {
   ADMIN
-  DEVOPS
-  VIEWER
+  USER
 
   @@map("roles")
 }
 
-enum ProjectStatus {
+enum Locale {
+  FR
+  AR
+}
+
+enum AuthProvider {
+  GOOGLE
+}
+
+enum ShopStatus {
   ACTIVE
-  ARCHIVED
-  ON_HOLD
-
-  @@map("project_status")
+  HIDDEN
+  MERGED
 }
 
-enum ProjectMemberRole {
-  OWNER
-  MEMBER
-
-  @@map("project_member_role")
+enum ShopPlatform {
+  INSTAGRAM
+  FACEBOOK
+  WEBSITE
 }
 
-enum EnvironmentType {
-  DEV
-  STAGING
-  PROD
-
-  @@map("environment_type")
+enum ContentStatus {
+  PUBLISHED
+  HIDDEN
+  DELETED
 }
 
-enum ServerProvider {
-  AWS
-  AZURE
-  GCP
-  DIGITALOCEAN
-  ON_PREMISES
-
-  @@map("server_provider")
-}
-
-enum ServerStatus {
-  ONLINE
-  OFFLINE
-  MAINTENANCE
-  ERROR
-
-  @@map("server_status")
-}
-
-enum ApplicationStatus {
-  RUNNING
-  STOPPED
-  DEPLOYING
+enum MediaStatus {
+  PENDING
+  READY
   FAILED
-
-  @@map("application_status")
+  DELETED
 }
 
-enum MetricType {
-  CPU
-  RAM
-  DISK
-
-  @@map("metric_type")
+enum ReportReason {
+  SPAM
+  ABUSE
+  MISLEADING
+  WRONG_SHOP
+  DUPLICATE_SHOP
+  OTHER
 }
 
-enum AlertOperator {
-  GT
-  GTE
-  LT
-  LTE
-
-  @@map("alert_operator")
-}
-
-enum AlertSeverity {
-  LOW
-  MEDIUM
-  HIGH
-  CRITICAL
-
-  @@map("alert_severity")
-}
-
-enum AlertStatus {
+enum ReportStatus {
   OPEN
-  ACKNOWLEDGED
   RESOLVED
+  DISMISSED
+}
 
-  @@map("alert_status")
+enum ModerationTarget {
+  SHOP
+  REVIEW
+  COMMENT
+  USER
+  REPORT
+}
+
+enum ModerationActionType {
+  HIDE
+  RESTORE
+  MERGE
+  CORRECT
+  SUSPEND
+  REACTIVATE
+  RESOLVE_REPORT
+  DISMISS_REPORT
 }
 
 model User {
-  id                 String          @id @default(uuid()) @db.Uuid
-  email              String          @unique
-  passwordHash       String          @map("password_hash")
-  fullName           String          @map("full_name")
-  role               Role            @default(VIEWER)
-  isActive           Boolean         @default(true) @map("is_active")
-  avatarUrl          String?         @map("avatar_url")
-  createdAt          DateTime        @default(now()) @map("created_at")
-  updatedAt          DateTime        @updatedAt @map("updated_at")
-  createdProjects    Project[]       @relation("ProjectCreator")
-  projectMemberships ProjectMember[]
-  acknowledgedAlerts Alert[]         @relation("AlertAcknowledgedBy")
+  id                  String               @id @default(uuid()) @db.Uuid
+  email               String               @unique
+  passwordHash        String?              @map("password_hash")
+  fullName            String               @map("full_name")
+  role                Role                 @default(USER)
+  isActive            Boolean              @default(true) @map("is_active")
+  avatarUrl           String?              @map("avatar_url")
+  locale              Locale               @default(FR)
+  deletedAt           DateTime?            @map("deleted_at") @db.Timestamptz(3)
+  createdAt           DateTime             @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt           DateTime             @updatedAt @map("updated_at") @db.Timestamptz(3)
+  identities          AuthIdentity[]
+  sessions            Session[]
+  passwordResetTokens PasswordResetToken[]
+  shops               Shop[]
+  reviews             Review[]
+  uploads             MediaAsset[]
+  likes               ReviewLike[]
+  comments            ReviewComment[]
+  reports             Report[]             @relation("Reporter")
+  resolvedReports     Report[]             @relation("Resolver")
+  moderationActions   ModerationAction[]
 
   @@index([role])
   @@index([isActive])
   @@map("users")
 }
 
-model Project {
-  id           String          @id @default(uuid()) @db.Uuid
-  name         String
-  slug         String          @unique
-  description  String?
-  status       ProjectStatus   @default(ACTIVE)
-  createdById  String?         @map("created_by_id") @db.Uuid
-  createdAt    DateTime        @default(now()) @map("created_at")
-  updatedAt    DateTime        @updatedAt @map("updated_at")
-  createdBy    User?           @relation("ProjectCreator", fields: [createdById], references: [id], onDelete: SetNull)
-  members      ProjectMember[]
-  environments Environment[]
-  servers      Server[]
-  applications Application[]
+model AuthIdentity {
+  id              String       @id @default(uuid()) @db.Uuid
+  userId          String       @map("user_id") @db.Uuid
+  provider        AuthProvider
+  providerSubject String       @map("provider_subject")
+  createdAt       DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt       DateTime     @updatedAt @map("updated_at") @db.Timestamptz(3)
+  user            User         @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@index([status])
-  @@index([createdById])
-  @@map("projects")
-}
-
-model ProjectMember {
-  id        String            @id @default(uuid()) @db.Uuid
-  projectId String            @map("project_id") @db.Uuid
-  userId    String            @map("user_id") @db.Uuid
-  role      ProjectMemberRole @default(MEMBER)
-  createdAt DateTime          @default(now()) @map("created_at")
-  updatedAt DateTime          @updatedAt @map("updated_at")
-  project   Project           @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  user      User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([projectId, userId])
+  @@unique([provider, providerSubject])
   @@index([userId])
-  @@map("project_members")
+  @@map("auth_identities")
 }
 
-model Environment {
-  id           String          @id @default(uuid()) @db.Uuid
-  projectId    String          @map("project_id") @db.Uuid
-  type         EnvironmentType
-  name         String
-  url          String?
-  createdAt    DateTime        @default(now()) @map("created_at")
-  updatedAt    DateTime        @updatedAt @map("updated_at")
-  project      Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  servers      Server[]
-  applications Application[]
+model Session {
+  id               String    @id @default(uuid()) @db.Uuid
+  userId           String    @map("user_id") @db.Uuid
+  familyId         String    @map("family_id") @db.Uuid
+  refreshTokenHash String    @unique @map("refresh_token_hash")
+  expiresAt        DateTime  @map("expires_at") @db.Timestamptz(3)
+  consumedAt       DateTime? @map("consumed_at") @db.Timestamptz(3)
+  revokedAt        DateTime? @map("revoked_at") @db.Timestamptz(3)
+  replacementId    String?   @unique @map("replacement_id") @db.Uuid
+  createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  replacement      Session?  @relation("Rotation", fields: [replacementId], references: [id], onDelete: SetNull)
+  predecessor      Session?  @relation("Rotation")
 
-  @@unique([projectId, type])
-  @@index([projectId])
-  @@map("environments")
+  @@index([userId, revokedAt])
+  @@index([familyId])
+  @@index([expiresAt])
+  @@map("sessions")
 }
 
-model Server {
-  id            String         @id @default(uuid()) @db.Uuid
-  name          String
-  ipAddress     String         @unique @map("ip_address")
-  provider      ServerProvider
-  region        String
-  cpuCores      Int            @map("cpu_cores")
-  ramGb         Int            @map("ram_gb")
-  storageGb     Int            @map("storage_gb")
-  status        ServerStatus   @default(ONLINE)
-  projectId     String?        @map("project_id") @db.Uuid
-  environmentId String?        @map("environment_id") @db.Uuid
-  createdAt     DateTime       @default(now()) @map("created_at")
-  updatedAt     DateTime       @updatedAt @map("updated_at")
-  project       Project?       @relation(fields: [projectId], references: [id], onDelete: Restrict)
-  environment   Environment?   @relation(fields: [environmentId], references: [id], onDelete: SetNull)
-  applications  Application[]
-  metrics       Metric[]
-  alertRules    AlertRule[]
-  alerts        Alert[]
+model PasswordResetToken {
+  id         String    @id @default(uuid()) @db.Uuid
+  userId     String    @map("user_id") @db.Uuid
+  tokenHash  String    @unique @map("token_hash")
+  expiresAt  DateTime  @map("expires_at") @db.Timestamptz(3)
+  consumedAt DateTime? @map("consumed_at") @db.Timestamptz(3)
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@index([projectId])
-  @@index([environmentId])
-  @@index([provider])
-  @@index([region])
-  @@index([status])
-  @@map("servers")
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("password_reset_tokens")
 }
 
-model Application {
-  id            String            @id @default(uuid()) @db.Uuid
-  name          String
-  repoUrl       String?           @map("repo_url")
-  status        ApplicationStatus @default(STOPPED)
-  serverId      String            @map("server_id") @db.Uuid
-  projectId     String?           @map("project_id") @db.Uuid
-  environmentId String?           @map("environment_id") @db.Uuid
-  createdAt     DateTime          @default(now()) @map("created_at")
-  updatedAt     DateTime          @updatedAt @map("updated_at")
-  server        Server            @relation(fields: [serverId], references: [id], onDelete: Restrict)
-  project       Project?          @relation(fields: [projectId], references: [id], onDelete: SetNull)
-  environment   Environment?      @relation(fields: [environmentId], references: [id], onDelete: SetNull)
+model Category {
+  id        String   @id @default(uuid()) @db.Uuid
+  key       String   @unique
+  labelFr   String   @map("label_fr")
+  labelAr   String   @map("label_ar")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+  shops     Shop[]
 
-  @@unique([serverId, name])
-  @@index([serverId])
-  @@index([projectId])
-  @@index([environmentId])
-  @@index([status])
-  @@map("applications")
+  @@map("categories")
 }
 
-model Metric {
-  id         BigInt   @id @default(autoincrement())
-  serverId   String   @map("server_id") @db.Uuid
-  cpuUsage   Float    @map("cpu_usage")
-  ramUsage   Float    @map("ram_usage")
-  diskUsage  Float    @map("disk_usage")
-  isUp       Boolean  @default(true) @map("is_up")
-  recordedAt DateTime @default(now()) @map("recorded_at")
-  createdAt  DateTime @default(now()) @map("created_at")
-  updatedAt  DateTime @updatedAt @map("updated_at")
-  server     Server   @relation(fields: [serverId], references: [id], onDelete: Cascade)
+model Shop {
+  id           String      @id @default(uuid()) @db.Uuid
+  name         String      @db.VarChar(150)
+  slug         String      @unique
+  description  String?
+  categoryId   String?     @map("category_id") @db.Uuid
+  governorate  String?
+  logoAssetId  String?     @map("logo_asset_id") @db.Uuid
+  createdById  String      @map("created_by_id") @db.Uuid
+  status       ShopStatus  @default(ACTIVE)
+  mergedIntoId String?     @map("merged_into_id") @db.Uuid
+  createdAt    DateTime    @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt    DateTime    @updatedAt @map("updated_at") @db.Timestamptz(3)
+  creator      User        @relation(fields: [createdById], references: [id], onDelete: Restrict)
+  category     Category?   @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  logo         MediaAsset? @relation(fields: [logoAssetId], references: [id], onDelete: Restrict)
+  mergedInto   Shop?       @relation("ShopMerge", fields: [mergedIntoId], references: [id], onDelete: Restrict)
+  mergedShops  Shop[]      @relation("ShopMerge")
+  links        ShopLink[]
+  reviews      Review[]
+  reports      Report[]
 
-  @@unique([serverId, recordedAt])
-  @@index([serverId, recordedAt(sort: Desc)])
-  @@index([recordedAt])
-  @@map("metrics")
+  @@index([status, name])
+  @@index([categoryId])
+  @@index([createdById])
+  @@index([mergedIntoId])
+  @@map("shops")
 }
 
-model AlertRule {
-  id                  String        @id @default(uuid()) @db.Uuid
-  name                String
-  metricType          MetricType    @map("metric_type")
-  operator            AlertOperator
-  threshold           Float
-  severity            AlertSeverity
-  consecutiveBreaches Int           @default(1) @map("consecutive_breaches")
-  enabled             Boolean       @default(true)
-  serverId            String?       @map("server_id") @db.Uuid
-  createdAt           DateTime      @default(now()) @map("created_at")
-  updatedAt           DateTime      @updatedAt @map("updated_at")
-  server              Server?       @relation(fields: [serverId], references: [id], onDelete: SetNull)
-  alerts              Alert[]
+model ShopLink {
+  id            String       @id @default(uuid()) @db.Uuid
+  shopId        String       @map("shop_id") @db.Uuid
+  platform      ShopPlatform
+  originalUrl   String       @map("original_url")
+  normalizedUrl String       @map("normalized_url")
+  identityKey   String       @unique @map("identity_key")
+  handle        String?
+  createdAt     DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt     DateTime     @updatedAt @map("updated_at") @db.Timestamptz(3)
+  shop          Shop         @relation(fields: [shopId], references: [id], onDelete: Restrict)
 
-  @@index([metricType])
-  @@index([severity])
-  @@index([enabled])
-  @@index([serverId])
-  @@map("alert_rules")
+  @@index([shopId])
+  @@map("shop_links")
 }
 
-model Alert {
-  id               String        @id @default(uuid()) @db.Uuid
-  ruleId           String?       @map("rule_id") @db.Uuid
-  serverId         String?       @map("server_id") @db.Uuid
-  message          String
-  metricValue      Float?        @map("metric_value")
-  severity         AlertSeverity
-  status           AlertStatus   @default(OPEN)
-  triggeredAt      DateTime      @default(now()) @map("triggered_at")
-  acknowledgedAt   DateTime?     @map("acknowledged_at")
-  acknowledgedById String?       @map("acknowledged_by_id") @db.Uuid
-  resolvedAt       DateTime?     @map("resolved_at")
-  createdAt        DateTime      @default(now()) @map("created_at")
-  updatedAt        DateTime      @updatedAt @map("updated_at")
-  rule             AlertRule?    @relation(fields: [ruleId], references: [id], onDelete: SetNull)
-  server           Server?       @relation(fields: [serverId], references: [id], onDelete: SetNull)
-  acknowledgedBy   User?         @relation("AlertAcknowledgedBy", fields: [acknowledgedById], references: [id], onDelete: SetNull)
+model Review {
+  id              String              @id @default(uuid()) @db.Uuid
+  authorId        String              @map("author_id") @db.Uuid
+  shopId          String              @map("shop_id") @db.Uuid
+  submissionId    String              @map("submission_id") @db.Uuid
+  submissionHash  String              @map("submission_hash")
+  rating          Int                 @db.SmallInt
+  text            String
+  productName     String?             @map("product_name") @db.VarChar(150)
+  purchaseDate    DateTime?           @map("purchase_date") @db.Date
+  status          ContentStatus       @default(PUBLISHED)
+  deletedAt       DateTime?           @map("deleted_at") @db.Timestamptz(3)
+  createdAt       DateTime            @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt       DateTime            @updatedAt @map("updated_at") @db.Timestamptz(3)
+  author          User                @relation(fields: [authorId], references: [id], onDelete: Restrict)
+  shop            Shop                @relation(fields: [shopId], references: [id], onDelete: Restrict)
+  images          ReviewImage[]
+  likes           ReviewLike[]
+  comments        ReviewComment[]
+  reports         Report[]
+  snapshotEntries FeedSnapshotEntry[]
 
-  @@index([status])
-  @@index([severity])
-  @@index([serverId])
-  @@index([ruleId])
-  @@index([triggeredAt(sort: Desc)])
-  @@map("alerts")
+  @@unique([authorId, submissionId])
+  @@index([status, createdAt, id])
+  @@index([shopId, status, createdAt, id])
+  @@index([authorId])
+  @@map("reviews")
+}
+
+model MediaAsset {
+  id           String       @id @default(uuid()) @db.Uuid
+  uploaderId   String       @map("uploader_id") @db.Uuid
+  storageKey   String       @unique @map("storage_key")
+  thumbnailKey String?      @map("thumbnail_key")
+  mimeType     String?      @map("mime_type")
+  byteSize     BigInt?      @map("byte_size")
+  width        Int?
+  height       Int?
+  status       MediaStatus  @default(PENDING)
+  expiresAt    DateTime?    @map("expires_at") @db.Timestamptz(3)
+  createdAt    DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt    DateTime     @updatedAt @map("updated_at") @db.Timestamptz(3)
+  uploader     User         @relation(fields: [uploaderId], references: [id], onDelete: Restrict)
+  reviewImage  ReviewImage?
+  logos        Shop[]
+
+  @@index([uploaderId, status])
+  @@index([status, expiresAt])
+  @@map("media_assets")
+}
+
+model ReviewImage {
+  id           String     @id @default(uuid()) @db.Uuid
+  reviewId     String     @map("review_id") @db.Uuid
+  mediaAssetId String     @unique @map("media_asset_id") @db.Uuid
+  position     Int        @db.SmallInt
+  createdAt    DateTime   @default(now()) @map("created_at") @db.Timestamptz(3)
+  review       Review     @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  mediaAsset   MediaAsset @relation(fields: [mediaAssetId], references: [id], onDelete: Restrict)
+
+  @@unique([reviewId, position])
+  @@map("review_images")
+}
+
+model ReviewLike {
+  userId    String   @map("user_id") @db.Uuid
+  reviewId  String   @map("review_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Restrict)
+  review    Review   @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+
+  @@id([userId, reviewId])
+  @@index([reviewId, createdAt, userId])
+  @@map("review_likes")
+}
+
+model ReviewComment {
+  id        String        @id @default(uuid()) @db.Uuid
+  authorId  String        @map("author_id") @db.Uuid
+  reviewId  String        @map("review_id") @db.Uuid
+  text      String
+  status    ContentStatus @default(PUBLISHED)
+  deletedAt DateTime?     @map("deleted_at") @db.Timestamptz(3)
+  createdAt DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime      @updatedAt @map("updated_at") @db.Timestamptz(3)
+  author    User          @relation(fields: [authorId], references: [id], onDelete: Restrict)
+  review    Review        @relation(fields: [reviewId], references: [id], onDelete: Restrict)
+  reports   Report[]
+
+  @@index([reviewId, status, createdAt, id])
+  @@index([authorId])
+  @@map("review_comments")
+}
+
+model Report {
+  id               String         @id @default(uuid()) @db.Uuid
+  reporterId       String         @map("reporter_id") @db.Uuid
+  shopId           String?        @map("shop_id") @db.Uuid
+  reviewId         String?        @map("review_id") @db.Uuid
+  commentId        String?        @map("comment_id") @db.Uuid
+  reason           ReportReason
+  details          String?
+  status           ReportStatus   @default(OPEN)
+  resolvedById     String?        @map("resolved_by_id") @db.Uuid
+  resolvedAt       DateTime?      @map("resolved_at") @db.Timestamptz(3)
+  resolutionReason String?        @map("resolution_reason")
+  createdAt        DateTime       @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt        DateTime       @updatedAt @map("updated_at") @db.Timestamptz(3)
+  reporter         User           @relation("Reporter", fields: [reporterId], references: [id], onDelete: Restrict)
+  resolver         User?          @relation("Resolver", fields: [resolvedById], references: [id], onDelete: Restrict)
+  shop             Shop?          @relation(fields: [shopId], references: [id], onDelete: Restrict)
+  review           Review?        @relation(fields: [reviewId], references: [id], onDelete: Restrict)
+  comment          ReviewComment? @relation(fields: [commentId], references: [id], onDelete: Restrict)
+
+  @@index([status, createdAt, id])
+  @@index([reporterId])
+  @@index([shopId])
+  @@index([reviewId])
+  @@index([commentId])
+  @@map("reports")
+}
+
+model ModerationAction {
+  id            String               @id @default(uuid()) @db.Uuid
+  adminId       String               @map("admin_id") @db.Uuid
+  targetType    ModerationTarget     @map("target_type")
+  targetId      String               @map("target_id") @db.Uuid
+  action        ModerationActionType
+  reason        String
+  previousState Json?                @map("previous_state")
+  newState      Json?                @map("new_state")
+  createdAt     DateTime             @default(now()) @map("created_at") @db.Timestamptz(3)
+  admin         User                 @relation(fields: [adminId], references: [id], onDelete: Restrict)
+
+  @@index([targetType, targetId, createdAt])
+  @@index([adminId])
+  @@map("moderation_actions")
+}
+
+model FeedSnapshot {
+  id               String              @id @default(uuid()) @db.Uuid
+  algorithmVersion String              @map("algorithm_version")
+  createdAt        DateTime            @default(now()) @map("created_at") @db.Timestamptz(3)
+  expiresAt        DateTime            @map("expires_at") @db.Timestamptz(3)
+  entries          FeedSnapshotEntry[]
+
+  @@index([expiresAt])
+  @@map("feed_snapshots")
+}
+
+model FeedSnapshotEntry {
+  snapshotId String       @map("snapshot_id") @db.Uuid
+  reviewId   String       @map("review_id") @db.Uuid
+  rank       Int
+  score      Float
+  snapshot   FeedSnapshot @relation(fields: [snapshotId], references: [id], onDelete: Cascade)
+  review     Review       @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+
+  @@id([snapshotId, rank])
+  @@unique([snapshotId, reviewId])
+  @@index([reviewId])
+  @@map("feed_snapshot_entries")
 }

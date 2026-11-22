@@ -48,7 +48,7 @@ export class AuthService {
 
   async register(dto: RegisterDto) {
     const existing = await this.prisma.user.findUnique({
-      where: { email: dto.email },
+      where: { email: dto.email.trim().toLowerCase() },
       select: { id: true },
     });
 
@@ -60,10 +60,10 @@ export class AuthService {
 
     const user = await this.prisma.user.create({
       data: {
-        email: dto.email,
+        email: dto.email.trim().toLowerCase(),
         fullName: dto.fullName,
         passwordHash,
-        role: Role.VIEWER,
+        role: Role.USER,
       },
       select: userSelect,
     });
@@ -75,14 +75,15 @@ export class AuthService {
 
   async login(dto: LoginDto) {
     const user = await this.prisma.user.findUnique({
-      where: { email: dto.email },
+      where: { email: dto.email.trim().toLowerCase() },
+      select: { ...userSelect, passwordHash: true },
     });
 
     const hash = user?.passwordHash ?? (await this.dummyHash);
 
     const passwordMatches = await bcrypt.compare(dto.password, hash);
 
-    if (!user || !user.isActive || !passwordMatches) {
+    if (!user || !user.isActive || !user.passwordHash || !passwordMatches) {
       throw new UnauthorizedException('Invalid credentials');
     }
 
@@ -124,7 +125,7 @@ export class AuthService {
       where: { id: userId },
     });
 
-    if (!user?.isActive) {
+    if (!user?.isActive || !user.passwordHash) {
       throw new UnauthorizedException();
     }
 

@@ -111,7 +111,7 @@ export class UsersService {
 
   async create(dto: CreateUserDto) {
     const existing = await this.prisma.user.findUnique({
-      where: { email: dto.email },
+      where: { email: dto.email.trim().toLowerCase() },
       select: { id: true },
     });
 
@@ -123,7 +123,7 @@ export class UsersService {
 
     return this.prisma.user.create({
       data: {
-        email: dto.email,
+        email: dto.email.trim().toLowerCase(),
         fullName: dto.fullName,
         passwordHash,
         role: dto.role,

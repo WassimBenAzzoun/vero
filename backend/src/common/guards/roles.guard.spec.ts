@@ -34,7 +34,7 @@ describe('RolesGuard', () => {
   it('should reject an unauthorized role', () => {
     reflector.getAllAndOverride.mockReturnValue(['ADMIN']);
 
-    expect(() => guard.canActivate(createContext({ role: 'VIEWER' }))).toThrow(
+    expect(() => guard.canActivate(createContext({ role: 'USER' }))).toThrow(
       ForbiddenException,
     );
   });
@@ -42,6 +42,6 @@ describe('RolesGuard', () => {
   it('should allow any authenticated user when no roles are specified', () => {
     reflector.getAllAndOverride.mockReturnValue(undefined);
 
-    expect(guard.canActivate(createContext({ role: 'VIEWER' }))).toBe(true);
+    expect(guard.canActivate(createContext({ role: 'USER' }))).toBe(true);
   });
 });

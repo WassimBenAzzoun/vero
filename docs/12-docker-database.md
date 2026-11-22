@@ -37,7 +37,7 @@ Do not use `down -v`, volume removal, Prisma reset or reinitialize the database 
 
 ## Schema and tests
 
-Starting this container creates an empty database, not the Vero application schema. Task 03 applies forward Prisma migrations; existing historical migrations still create CloudOps tables until that transition is implemented. Seed only after inspecting/updating the seed for Vero.
+Starting a new container/volume creates an empty database, not the application schema. Task 03 now provides the forward Vero migration. From backend/, run `pnpm prisma:generate` and `pnpm db:migrate` after configuring `.env`. The historical migrations run first, and the foundation migration preserves their old tables in `legacy_cloudops`. The updated seed requires explicit development admin credentials; fictional demo data is opt-in.
 
 Integration tests must use an isolated test database, connection URL and volume/project configuration. Do not run destructive tests against the development database or reuse it as the e2e reset target.
 

@@ -1,6 +1,6 @@
 # Vero data dictionary - task 02
 
-Status: target design, ready for task 03 migration work. This document does not replace `backend/prisma/schema.prisma` yet.
+Status: task 03 implements these entities in `backend/prisma/schema.prisma` with SQL CHECK constraints in the forward foundation migration. This dictionary remains the design/lifecycle reference; service-level workflows are implemented in later tasks.
 
 ## Conventions
 

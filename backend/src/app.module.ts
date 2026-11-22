@@ -18,6 +18,22 @@ import { RolesGuard } from './common/guards/roles.guard';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ScheduleModule } from '@nestjs/schedule';
 
+import { ShopsModule } from './shops/shops.module';
+
+import { CategoriesModule } from './categories/categories.module';
+
+import { ReviewsModule } from './reviews/reviews.module';
+
+import { MediaModule } from './media/media.module';
+
+import { FeedModule } from './feed/feed.module';
+
+import { EngagementModule } from './engagement/engagement.module';
+
+import { ReportsModule } from './reports/reports.module';
+
+import { ModerationModule } from './moderation/moderation.module';
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -57,6 +73,14 @@ import { ScheduleModule } from '@nestjs/schedule';
     HealthModule,
     AuthModule,
     UsersModule,
+    ModerationModule,
+    ReportsModule,
+    EngagementModule,
+    FeedModule,
+    MediaModule,
+    ReviewsModule,
+    CategoriesModule,
+    ShopsModule,
   ],
   providers: [
     {

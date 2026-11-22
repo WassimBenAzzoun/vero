@@ -30,7 +30,7 @@ describe('AuthService', () => {
   });
 
   describe('register', () => {
-    it('should create a VIEWER user', async () => {
+    it('should create a USER user', async () => {
       prisma.user.findUnique.mockResolvedValue(null);
 
       prisma.user.create.mockImplementation(async ({ data }) => ({
@@ -53,7 +53,7 @@ describe('AuthService', () => {
       expect(prisma.user.create).toHaveBeenCalledWith(
         expect.objectContaining({
           data: expect.objectContaining({
-            role: 'VIEWER',
+            role: 'USER',
           }),
         }),
       );
@@ -78,6 +78,21 @@ describe('AuthService', () => {
   });
 
   describe('login', () => {
+    it('rejects password login for Google-only users even with the dummy password', async () => {
+      prisma.user.findUnique.mockResolvedValue({
+        id: 'google-user',
+        email: 'google@example.com',
+        passwordHash: null,
+        isActive: true,
+        role: 'USER',
+      });
+      await expect(
+        service.login({
+          email: 'google@example.com',
+          password: 'constant-time-dummy-password',
+        }),
+      ).rejects.toThrow(UnauthorizedException);
+    });
     it('should login successfully', async () => {
       const passwordHash = await bcrypt.hash('Password123', 12);
 
@@ -86,7 +101,7 @@ describe('AuthService', () => {
         email: 'test@example.com',
         fullName: 'Test User',
         passwordHash,
-        role: 'VIEWER',
+        role: 'USER',
         isActive: true,
         avatarUrl: null,
         createdAt: new Date(),
@@ -110,7 +125,7 @@ describe('AuthService', () => {
         email: 'test@example.com',
         passwordHash,
         isActive: true,
-        role: 'VIEWER',
+        role: 'USER',
       });
 
       await expect(
@@ -129,7 +144,7 @@ describe('AuthService', () => {
         email: 'test@example.com',
         passwordHash,
         isActive: false,
-        role: 'VIEWER',
+        role: 'USER',
       });
 
       await expect(

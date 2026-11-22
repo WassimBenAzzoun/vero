@@ -36,8 +36,8 @@ async function bootstrap() {
   app.enableShutdownHooks();
 
   const swaggerConfig = new DocumentBuilder()
-    .setTitle('CloudOps Manager API')
-    .setDescription('CloudOps Manager API documentation')
+    .setTitle('Vero API')
+    .setDescription('Vero shop review API')
     .setVersion('1.0')
     .addBearerAuth()
     .build();

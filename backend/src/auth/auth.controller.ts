@@ -24,7 +24,7 @@ export class AuthController {
 
   @Public()
   @Post('register')
-  @ApiOperation({ summary: 'Register a new VIEWER account' })
+  @ApiOperation({ summary: 'Register a new USER account' })
   @ApiResponse({ status: 201, type: AuthResponseDto })
   @ApiResponse({ status: 409, description: 'Email already registered' })
   register(@Body() dto: RegisterDto) {

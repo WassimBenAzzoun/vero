@@ -16,6 +16,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
     let status = HttpStatus.INTERNAL_SERVER_ERROR;
     let message: string | string[] = 'Internal server error';
+    let code = 'INTERNAL_ERROR';
 
     if (exception instanceof HttpException) {
       status = exception.getStatus();
@@ -27,23 +28,45 @@ export class HttpExceptionFilter implements ExceptionFilter {
           ? exceptionResponse
           : ((exceptionResponse as { message?: string | string[] }).message ??
             exception.message);
+      code =
+        (
+          {
+            400: 'VALIDATION_ERROR',
+            401: 'UNAUTHORIZED',
+            403: 'FORBIDDEN',
+            404: 'NOT_FOUND',
+            409: 'CONFLICT',
+            429: 'RATE_LIMITED',
+          } as Record<number, string>
+        )[status] ?? 'REQUEST_FAILED';
+      if (
+        typeof exceptionResponse === 'object' &&
+        exceptionResponse !== null &&
+        'code' in exceptionResponse &&
+        typeof exceptionResponse.code === 'string'
+      ) {
+        code = exceptionResponse.code;
+      }
     } else {
       const prismaError = exception as { code?: string };
 
       if (prismaError?.code === 'P2002') {
         status = HttpStatus.CONFLICT;
         message = 'Resource already exists';
+        code = 'CONFLICT';
       } else if (prismaError?.code === 'P2025') {
         status = HttpStatus.NOT_FOUND;
         message = 'Resource not found';
+        code = 'NOT_FOUND';
       }
     }
 
     response.status(status).json({
       statusCode: status,
+      code,
       message,
       timestamp: new Date().toISOString(),
-      path: request.url,
+      path: request.url.split('?')[0],
     });
   }
 }
