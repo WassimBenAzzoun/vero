@@ -25,6 +25,7 @@ export function Comments({
   const [data, setData] = useState<CommentPage | null>(null),
     [text, setText] = useState(""),
     [editing, setEditing] = useState<string | null>(null),
+    [confirmDelete, setConfirmDelete] = useState<string | null>(null),
     [error, setError] = useState(""),
     [busy, setBusy] = useState(false);
   const load = useCallback(
@@ -85,9 +86,21 @@ export function Comments({
   };
   const remove = async (commentId: string) => {
     setBusy(true);
+    setError("");
     try {
       await api(`/comments/${commentId}`, { method: "DELETE" });
-      await load();
+      setData(
+        (page) =>
+          page && {
+            ...page,
+            items: page.items.filter((comment) => comment.id !== commentId),
+          },
+      );
+      setConfirmDelete(null);
+      if (editing === commentId) {
+        setEditing(null);
+        setText("");
+      }
       onChange?.();
     } catch (e) {
       setError(e instanceof Error ? e.message : t.network);
@@ -142,12 +155,25 @@ export function Comments({
                   setText(comment.text);
                 }}
               />
-              <TextAction
-                title={t.deleteReview}
-                onPress={() => {
-                  if (!busy) void remove(comment.id);
-                }}
-              />
+              {confirmDelete === comment.id ? (
+                <>
+                  <TextAction
+                    title={t.confirmDelete}
+                    onPress={() => {
+                      if (!busy) void remove(comment.id);
+                    }}
+                  />
+                  <TextAction
+                    title={t.cancel}
+                    onPress={() => setConfirmDelete(null)}
+                  />
+                </>
+              ) : (
+                <TextAction
+                  title={t.deleteComment}
+                  onPress={() => setConfirmDelete(comment.id)}
+                />
+              )}
             </View>
           )}
         </View>

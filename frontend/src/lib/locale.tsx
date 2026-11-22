@@ -49,6 +49,7 @@ const fr = {
   deleteExplain:
     "Votre profil sera anonymisé et vos avis retirés. Confirmez pour continuer.",
   confirmDelete: "Confirmer la suppression",
+  deleteComment: "Supprimer le commentaire",
   cancel: "Annuler",
   linkGoogle: "Lier mon compte Google",
   googleConnected: "Connexion avec Google",
@@ -199,6 +200,7 @@ const ar: typeof fr = {
   deleteAccount: "حذف حسابي",
   deleteExplain: "باش نخفيوا هويتك ونحذفوا آراءك. أكّد باش تواصل.",
   confirmDelete: "تأكيد الحذف",
+  deleteComment: "احذف التعليق",
   cancel: "إلغاء",
   linkGoogle: "ربط حساب Google",
   googleConnected: "الدخول بحساب Google",
