@@ -12,10 +12,14 @@ export function ReviewCard({
   review,
   detail = false,
   children,
+  headerAction,
+  headerPanel,
 }: {
   review: Review;
   detail?: boolean;
   children?: React.ReactNode;
+  headerAction?: React.ReactNode;
+  headerPanel?: React.ReactNode;
 }) {
   const { language, rtl } = useLocale();
   const [photo, setPhoto] = useState<string | null>(null);
@@ -54,7 +58,9 @@ export function ReviewCard({
           </T>
         </View>
         <T style={{ fontFamily: fonts.strong }}>★ {review.rating}/5</T>
+        {headerAction}
       </View>
+      {headerPanel}
       <TextAction
         title={review.shop.name}
         onPress={() =>
