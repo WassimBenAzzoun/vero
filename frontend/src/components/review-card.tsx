@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Modal, Pressable, View } from "react-native";
+import { Modal, Platform, Pressable, View } from "react-native";
 import { Image } from "expo-image";
 import { router } from "expo-router";
 import { useAuth } from "../lib/auth";
@@ -80,7 +80,11 @@ export function ReviewCard({
             position: "absolute",
             top: "100%",
             marginTop: 4,
-            end: 0,
+            ...(Platform.OS === "web"
+              ? rtl
+                ? { left: 0 }
+                : { right: 0 }
+              : { end: 0 }),
             zIndex: 3,
             elevation: 6,
             boxShadow: "0 6px 18px rgba(20, 26, 70, 0.16)",
