@@ -1,7 +1,6 @@
 import { useCallback, useState } from "react";
 import { ActivityIndicator, View } from "react-native";
-import { router, useFocusEffect } from "expo-router";
-import * as Linking from "expo-linking";
+import { Link, router, useFocusEffect } from "expo-router";
 import { api } from "../lib/api";
 import { useDraft } from "../lib/draft";
 import { useAuth } from "../lib/auth";
@@ -94,6 +93,64 @@ export function ShopScreen({
       title={shop.name}
       subtitle={shop.description || shop.governorate || undefined}
     >
+      {!!shop.links.length && (
+        <View style={{ gap: 8 }}>
+          <T
+            accessibilityRole="header"
+            style={{
+              fontFamily: rtl ? fonts.arabic : fonts.strong,
+              fontSize: 17,
+            }}
+          >
+            {language === "ar" ? "روابط المحلّ" : "Liens de la boutique"}
+          </T>
+          {shop.links.map((link) => {
+            const platform =
+              link.platform === "INSTAGRAM"
+                ? "Instagram"
+                : link.platform === "FACEBOOK"
+                  ? "Facebook"
+                  : language === "ar"
+                    ? "الموقع"
+                    : "Site web";
+            return (
+              <Link
+                key={link.normalizedUrl}
+                href={link.normalizedUrl as `https://${string}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  paddingHorizontal: 14,
+                  paddingVertical: 10,
+                  borderRadius: 12,
+                  backgroundColor: colors.white,
+                  borderWidth: 1,
+                  borderColor: colors.line,
+                  textAlign: rtl ? "right" : "left",
+                }}
+              >
+                <T style={{ fontFamily: rtl ? fonts.arabic : fonts.strong }}>
+                  {platform}
+                  {link.handle ? ` · @${link.handle}` : ""}
+                </T>
+                {"\n"}
+                <T
+                  selectable
+                  numberOfLines={2}
+                  style={{
+                    writingDirection: "ltr",
+                    textAlign: "left",
+                    color: colors.muted,
+                    fontSize: 13,
+                  }}
+                >
+                  {link.normalizedUrl}
+                </T>
+              </Link>
+            );
+          })}
+        </View>
+      )}
       <View
         style={{
           borderTopWidth: 1,
@@ -151,21 +208,6 @@ export function ShopScreen({
           {language === "ar" ? shop.category.labelAr : shop.category.labelFr}
         </T>
       )}
-      {shop.links.map((link) => (
-        <TextAction
-          key={link.normalizedUrl}
-          title={
-            link.handle
-              ? `${link.platform} · @${link.handle}`
-              : link.normalizedUrl
-          }
-          onPress={() => {
-            void Linking.openURL(link.normalizedUrl).catch(() =>
-              setError(t.network),
-            );
-          }}
-        />
-      ))}
       <Button title={t.write} onPress={write} testID="shop-write" />
       <TextAction
         title={t.share}
