@@ -67,6 +67,7 @@ export function FeedScreen({
         <ReviewCard
           key={review.id}
           review={review}
+          feedCard
           onDeleted={(id) =>
             setData((page) => page && { ...page, items: page.items.filter((item) => item.id !== id) })
           }

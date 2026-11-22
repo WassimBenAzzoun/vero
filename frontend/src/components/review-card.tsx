@@ -14,11 +14,13 @@ export function ReviewCard({
   detail = false,
   children,
   onDeleted,
+  feedCard = false,
 }: {
   review: Review;
   detail?: boolean;
   children?: React.ReactNode;
   onDeleted: (id: string) => void;
+  feedCard?: boolean;
 }) {
   const { t, language, rtl } = useLocale();
   const { user } = useAuth();
@@ -29,6 +31,8 @@ export function ReviewCard({
   const [photo, setPhoto] = useState<string | null>(null);
   const canManage =
     user?.id === review.author.id && review.status !== "DELETED";
+  const openShop = () =>
+    router.push({ pathname: "/shops/[id]", params: { id: review.shop.id } });
   const remove = async () => {
     if (!canManage || busy) return;
     setBusy(true);
@@ -42,20 +46,77 @@ export function ReviewCard({
       setBusy(false);
     }
   };
+  const menuButton = canManage && (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={t.reviewOptions}
+      accessibilityState={{ expanded: menuOpen, disabled: busy }}
+      disabled={busy}
+      onPress={() => {
+        setMenuOpen(!menuOpen);
+        setConfirm(false);
+        setError("");
+      }}
+      style={({ pressed }) => ({
+        width: 44,
+        height: 44,
+        alignItems: "center",
+        justifyContent: "center",
+        borderRadius: 22,
+        backgroundColor:
+          pressed || menuOpen
+            ? colors.line
+            : feedCard
+              ? colors.sand
+              : "transparent",
+      })}
+    >
+      <T style={{ fontSize: 24, lineHeight: 28 }}>⋮</T>
+    </Pressable>
+  );
   return (
     <View
       style={{
+        borderWidth: feedCard ? 1 : 0,
         borderTopWidth: 1,
+        borderRadius: feedCard ? 16 : 0,
         borderColor: colors.line,
-        paddingVertical: 21,
+        backgroundColor: feedCard ? colors.white : undefined,
+        paddingVertical: feedCard ? 14 : 21,
+        paddingHorizontal: feedCard ? 14 : 0,
         gap: 12,
       }}
     >
+      {feedCard && (
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+          <Pressable
+            accessibilityRole="button"
+            onPress={openShop}
+            style={{
+              flex: 1,
+              minWidth: 0,
+              minHeight: 44,
+              justifyContent: "center",
+            }}
+          >
+            <T
+              style={{
+                fontSize: 21,
+                lineHeight: rtl ? 32 : 28,
+                fontFamily: rtl ? fonts.arabic : fonts.heading,
+              }}
+            >
+              {review.shop.name}
+            </T>
+          </Pressable>
+          {menuButton}
+        </View>
+      )}
       <View style={{ flexDirection: "row", alignItems: "center", gap: 11 }}>
         <View
           style={{
-            width: 40,
-            height: 40,
+            width: feedCard ? 32 : 40,
+            height: feedCard ? 32 : 40,
             borderRadius: 20,
             alignItems: "center",
             justifyContent: "center",
@@ -77,29 +138,7 @@ export function ReviewCard({
           </T>
         </View>
         <T style={{ fontFamily: fonts.strong }}>★ {review.rating}/5</T>
-        {canManage && (
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={t.reviewOptions}
-            accessibilityState={{ expanded: menuOpen, disabled: busy }}
-            disabled={busy}
-            onPress={() => {
-              setMenuOpen(!menuOpen);
-              setConfirm(false);
-            }}
-            style={({ pressed }) => ({
-              width: 44,
-              height: 44,
-              alignItems: "center",
-              justifyContent: "center",
-              borderRadius: 22,
-              backgroundColor:
-                pressed || menuOpen ? colors.line : "transparent",
-            })}
-          >
-            <T style={{ fontSize: 24, lineHeight: 28 }}>⋮</T>
-          </Pressable>
-        )}
+        {!feedCard && menuButton}
       </View>
       {canManage && menuOpen && (
         <View
@@ -153,15 +192,7 @@ export function ReviewCard({
           <Notice error text={error} />
         </View>
       )}
-      <TextAction
-        title={review.shop.name}
-        onPress={() =>
-          router.push({
-            pathname: "/shops/[id]",
-            params: { id: review.shop.id },
-          })
-        }
-      />
+      {!feedCard && <TextAction title={review.shop.name} onPress={openShop} />}
       {review.productName && (
         <T style={{ color: colors.muted }}>{review.productName}</T>
       )}
@@ -192,12 +223,17 @@ export function ReviewCard({
                 language === "ar" ? "افتح الصورة" : "Ouvrir la photo"
               }
               onPress={() => setPhoto(API + image.path)}
-              style={{ borderRadius: 12, overflow: "hidden" }}
+              style={{
+                borderRadius: 12,
+                overflow: "hidden",
+                width: review.images.length === 1 ? "100%" : "47%",
+                maxWidth: review.images.length === 1 ? undefined : 160,
+              }}
             >
               <Image
                 source={API + image.thumbnailPath}
                 style={{
-                  width: review.images.length === 1 ? 280 : 135,
+                  width: "100%",
                   height: 170,
                 }}
                 contentFit="cover"
