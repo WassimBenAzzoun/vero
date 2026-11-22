@@ -1,0 +1,11 @@
+packages:
+  - .
+
+allowBuilds:
+  bcrypt: true
+  prisma: true
+  '@prisma/engines': true
+  '@nestjs/core': true
+  esbuild: true
+  '@parcel/watcher': false
+  '@scarf/scarf': false
