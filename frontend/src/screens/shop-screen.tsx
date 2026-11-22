@@ -243,7 +243,14 @@ export function ShopScreen({
         <Notice text={t.noItems} />
       ) : (
         reviews.items.map((review) => (
-          <ReviewCard key={review.id} review={review} />
+          <ReviewCard
+            key={review.id}
+            review={review}
+            onDeleted={(id) => {
+              setReviews((page) => page && { ...page, items: page.items.filter((item) => item.id !== id) });
+              setAttempt((value) => value + 1);
+            }}
+          />
         ))
       )}
       {reviews?.nextCursor && (

@@ -48,7 +48,13 @@ export function MyReviews() {
       {!data && !error && <Notice text={t.loading} />}
       {data && !data.items.length && <T>{t.noItems}</T>}
       {data?.items.map((review) => (
-        <ReviewCard key={review.id} review={review} />
+        <ReviewCard
+          key={review.id}
+          review={review}
+          onDeleted={(id) =>
+            setData((page) => page && { ...page, items: page.items.filter((item) => item.id !== id) })
+          }
+        />
       ))}
       {data?.nextCursor && (
         <Button title={t.next} onPress={() => void more()} />

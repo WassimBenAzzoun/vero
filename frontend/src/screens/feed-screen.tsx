@@ -64,7 +64,13 @@ export function FeedScreen({
       {!!error && <TextAction title={t.retry} onPress={() => void load()} />}
       {busy && !data && <Notice text={t.loading} />}
       {data?.items.map((review) => (
-        <ReviewCard key={review.id} review={review} />
+        <ReviewCard
+          key={review.id}
+          review={review}
+          onDeleted={(id) =>
+            setData((page) => page && { ...page, items: page.items.filter((item) => item.id !== id) })
+          }
+        />
       ))}
       {data && !data.items.length && <Notice text={t.noReviews} />}
       {data?.nextCursor && (

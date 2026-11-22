@@ -2,27 +2,46 @@ import { useState } from "react";
 import { Modal, Pressable, View } from "react-native";
 import { Image } from "expo-image";
 import { router } from "expo-router";
-import { API } from "../lib/api";
+import { useAuth } from "../lib/auth";
+import { API, api } from "../lib/api";
 import type { Review } from "../lib/reviews";
 import { useLocale } from "../lib/locale";
 import { colors, fonts } from "../theme";
-import { Button, T, TextAction } from "./ui";
+import { Button, Notice, T, TextAction } from "./ui";
 import { ReviewActions } from "./review-actions";
 export function ReviewCard({
   review,
   detail = false,
   children,
-  headerAction,
-  headerPanel,
+  onDeleted,
 }: {
   review: Review;
   detail?: boolean;
   children?: React.ReactNode;
-  headerAction?: React.ReactNode;
-  headerPanel?: React.ReactNode;
+  onDeleted: (id: string) => void;
 }) {
-  const { language, rtl } = useLocale();
+  const { t, language, rtl } = useLocale();
+  const { user } = useAuth();
+  const [confirm, setConfirm] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
   const [photo, setPhoto] = useState<string | null>(null);
+  const canManage =
+    user?.id === review.author.id && review.status !== "DELETED";
+  const remove = async () => {
+    if (!canManage || busy) return;
+    setBusy(true);
+    setError("");
+    try {
+      await api(`/reviews/${review.id}`, { method: "DELETE" });
+      onDeleted(review.id);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : t.network);
+    } finally {
+      setBusy(false);
+    }
+  };
   return (
     <View
       style={{
@@ -58,9 +77,82 @@ export function ReviewCard({
           </T>
         </View>
         <T style={{ fontFamily: fonts.strong }}>★ {review.rating}/5</T>
-        {headerAction}
+        {canManage && (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={t.reviewOptions}
+            accessibilityState={{ expanded: menuOpen, disabled: busy }}
+            disabled={busy}
+            onPress={() => {
+              setMenuOpen(!menuOpen);
+              setConfirm(false);
+            }}
+            style={({ pressed }) => ({
+              width: 44,
+              height: 44,
+              alignItems: "center",
+              justifyContent: "center",
+              borderRadius: 22,
+              backgroundColor:
+                pressed || menuOpen ? colors.line : "transparent",
+            })}
+          >
+            <T style={{ fontSize: 24, lineHeight: 28 }}>⋮</T>
+          </Pressable>
+        )}
       </View>
-      {headerPanel}
+      {canManage && menuOpen && (
+        <View
+          style={{
+            alignSelf: "flex-end",
+            width: 230,
+            maxWidth: "100%",
+            paddingHorizontal: 14,
+            paddingVertical: 4,
+            borderWidth: 1,
+            borderColor: colors.line,
+            borderRadius: 12,
+            backgroundColor: colors.white,
+          }}
+        >
+          {confirm ? (
+            <>
+              <Button
+                title={t.confirmDelete}
+                busy={busy}
+                onPress={() => void remove()}
+              />
+              <TextAction
+                title={t.cancel}
+                onPress={() => {
+                  if (!busy) {
+                    setConfirm(false);
+                    setMenuOpen(false);
+                  }
+                }}
+              />
+            </>
+          ) : (
+            <>
+              <TextAction
+                title={t.edit}
+                onPress={() => {
+                  setMenuOpen(false);
+                  router.push({
+                    pathname: "/reviews/[id]/edit",
+                    params: { id: review.id },
+                  });
+                }}
+              />
+              <TextAction
+                title={t.deleteReview}
+                onPress={() => setConfirm(true)}
+              />
+            </>
+          )}
+          <Notice error text={error} />
+        </View>
+      )}
       <TextAction
         title={review.shop.name}
         onPress={() =>
