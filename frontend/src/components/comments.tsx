@@ -5,6 +5,7 @@ import { api, post } from "../lib/api";
 import { useAuth } from "../lib/auth";
 import { useLocale } from "../lib/locale";
 import { Button, Field, Notice, T, TextAction } from "./ui";
+import { ReportButton } from "./report-button";
 type Comment = {
   id: string;
   text: string;
@@ -123,6 +124,7 @@ export function Comments({ id }: { id: string }) {
         >
           <T style={{ fontWeight: "bold" }}>{comment.author.fullName}</T>
           <T>{comment.text}</T>
+          <ReportButton targetType="comment" targetId={comment.id} />
           {user?.id === comment.author.id && (
             <View style={{ flexDirection: "row", gap: 20 }}>
               <TextAction

@@ -7,6 +7,7 @@ import { useLocale } from "../lib/locale";
 import { sharePath } from "../lib/share";
 import type { Review } from "../lib/reviews";
 import { Notice, TextAction } from "./ui";
+import { ReportButton } from "./report-button";
 export function ReviewActions({ review }: { review: Review }) {
   const { user } = useAuth(),
     { t, language } = useLocale();
@@ -75,6 +76,7 @@ export function ReviewActions({ review }: { review: Review }) {
         />
       </View>
       <Notice text={message} />
+      <ReportButton targetType="review" targetId={review.id} />
     </View>
   );
 }

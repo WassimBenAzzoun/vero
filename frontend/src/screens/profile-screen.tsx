@@ -120,6 +120,13 @@ export function ProfileScreen() {
           />
         </>
       )}
+      {user.role === "ADMIN" && process.env.EXPO_OS === "web" && (
+        <Button
+          title={t.admin}
+          secondary
+          onPress={() => router.push("/admin")}
+        />
+      )}
       <Button
         title={t.signOut}
         busy={busy}

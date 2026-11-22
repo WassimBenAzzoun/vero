@@ -9,6 +9,8 @@ import { useLocale } from "../lib/locale";
 import type { Shop } from "../lib/shops";
 import { Button, Notice, Page, T, TextAction } from "../components/ui";
 import { ReviewCard } from "../components/review-card";
+import { ReportButton } from "../components/report-button";
+import { sharePath } from "../lib/share";
 import type { ReviewPage } from "../lib/reviews";
 import { colors, fonts } from "../theme";
 export function ShopScreen({ id }: { id: string }) {
@@ -24,7 +26,9 @@ export function ShopScreen({ id }: { id: string }) {
   useFocusEffect(
     useCallback(() => {
       let mounted = true;
-      void api<Shop>(`/shops/${encodeURIComponent(id)}${attempt ? `?retry=${attempt}` : ''}`)
+      void api<Shop>(
+        `/shops/${encodeURIComponent(id)}${attempt ? `?retry=${attempt}` : ""}`,
+      )
         .then((result) => {
           if (mounted) {
             setShop(result);
@@ -153,6 +157,13 @@ export function ShopScreen({ id }: { id: string }) {
         />
       ))}
       <Button title={t.write} onPress={write} testID="shop-write" />
+      <TextAction
+        title={t.share}
+        onPress={() =>
+          void sharePath(`/shops/${shop.id}`).catch(() => setError(t.network))
+        }
+      />
+      <ReportButton targetType="shop" targetId={shop.id} />
       <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
         {[undefined, 5, 4, 3, 2, 1].map((value) => (
           <Button

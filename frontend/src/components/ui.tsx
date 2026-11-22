@@ -246,11 +246,13 @@ export function Page({
   subtitle,
   children,
   nav = true,
+  wide = false,
 }: {
   title?: string;
   subtitle?: string;
   children: ReactNode;
   nav?: boolean;
+  wide?: boolean;
 }) {
   const { rtl, language, setLanguage, t } = useLocale();
   const insets = useSafeAreaInsets();
@@ -273,7 +275,7 @@ export function Page({
         <View
           style={{
             width: "100%",
-            maxWidth: 480,
+            maxWidth: wide ? 1240 : 480,
             alignSelf: "center",
             gap: 23,
             direction: rtl ? "rtl" : "ltr",

@@ -11,6 +11,7 @@ import { authScenarios } from './auth-scenarios';
 import { shopScenarios } from './shop-scenarios';
 import { reviewScenarios } from './review-scenarios';
 import { feedScenarios } from './feed-scenarios';
+import { moderationScenarios } from './moderation-scenarios';
 
 // These tests create and delete ONLY their own randomly named databases on local Docker.
 const adminUrl = process.env.TEST_DATABASE_ADMIN_URL;
@@ -354,6 +355,7 @@ async function testFoundation() {
     await shopScenarios(db.url);
     await reviewScenarios(db.url);
     await feedScenarios(db.url);
+    await moderationScenarios(db.url);
     await testHttp(db.url, googleId);
   }
 }
