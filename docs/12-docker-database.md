@@ -50,5 +50,15 @@ Integration tests must use an isolated test database, connection URL and volume/
 
 ## References
 
+## Verification recorded on 2026-11-22
+
+- Compose configuration validation passed and `up -d --wait` reached healthy status.
+- Authenticated TCP SQL inside the container returned database `vero`, user `vero` and PostgreSQL 16.16.
+- Published port inspection returned `127.0.0.1:5433`; a host TCP connection succeeded.
+- No existing containers/volumes were present before setup. Created `vero_postgres_data`; no volume was removed and no application migration or seed was executed.
+- Persistence is configured with a named volume; backup restoration and application integration are not verified by these startup checks.
+
+## Official references
+
 - [Docker Compose health checks](https://docs.docker.com/compose/how-tos/startup-order/) explains database readiness checks.
 - [Docker PostgreSQL guide](https://docs.docker.com/guides/postgresql/) explains container networking and persistent storage. The data-directory mount in this project is chosen for PostgreSQL 16.

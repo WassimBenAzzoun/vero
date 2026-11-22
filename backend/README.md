@@ -1,5 +1,7 @@
 # CloudOps Manager — Backend
 
+> Vero migration in progress. For the current Docker database setup, use [the Vero database guide](../docs/12-docker-database.md). Local PostgreSQL now uses database/user/password `vero`, host `127.0.0.1:5433`, and persistent volume `vero_postgres_data`. Historical CloudOps application sections below will be adapted in task 03.
+
 Backend API for **CloudOps Manager**, built with NestJS, TypeScript, Prisma ORM, and PostgreSQL.
 
 ---
@@ -100,7 +102,7 @@ cp .env.example .env
 Configure the following variables:
 
 ```env
-DATABASE_URL="postgresql://postgres:postgres@localhost:5433/cloudops?schema=public"
+DATABASE_URL="postgresql://vero:vero@127.0.0.1:5433/vero?schema=public"
 
 JWT_SECRET="replace_with_a_random_secret_at_least_32_characters"
 
@@ -175,20 +177,20 @@ Wait until the PostgreSQL container reports a healthy status.
 | Setting        | Value                    |
 | -------------- | ------------------------ |
 | Image          | `postgres:16`            |
-| Container name | `cloudops-postgres`      |
-| Database       | `cloudops`               |
-| Username       | `postgres`               |
-| Password       | `postgres`               |
+| Container name | `vero-postgres-1` (Compose generated) |
+| Database       | `vero`                   |
+| Username       | `vero`                   |
+| Password       | `vero` (local development only) |
 | Container port | `5432`                   |
 | Host port      | `5433`                   |
-| Volume         | `cloudops_postgres_data` |
+| Volume         | `vero_postgres_data`     |
 
-The host uses port `5433` because port `5432` was already occupied.
+The host uses loopback address `127.0.0.1` and port `5433`; the container uses port `5432`. Override `POSTGRES_PORT` and match `DATABASE_URL` if the host port is occupied.
 
 The database connection string is:
 
 ```text
-postgresql://postgres:postgres@localhost:5433/cloudops?schema=public
+postgresql://vero:vero@127.0.0.1:5433/vero?schema=public
 ```
 
 ### Stop PostgreSQL
@@ -197,13 +199,7 @@ postgresql://postgres:postgres@localhost:5433/cloudops?schema=public
 docker compose -f docker-compose.dev.yml down
 ```
 
-### Stop PostgreSQL and delete its persistent data
-
-```bash
-docker compose -f docker-compose.dev.yml down -v
-```
-
-**Warning:** The `-v` option deletes the database volume and its stored data. Use it only when you intentionally want to reset the development database.
+The named volume is preserved by `down`. Do not remove it or reset the database as routine setup; migrate existing data deliberately.
 
 ---
 
@@ -634,13 +630,13 @@ After startup:
 
 ### PostgreSQL port already in use
 
-If port `5432` is occupied, use a different host port in `docker-compose.dev.yml`.
+If host port `5433` is occupied, set a different `POSTGRES_PORT` and match `DATABASE_URL`.
 
 For this project, PostgreSQL uses:
 
 ```yaml
 ports:
-  - '5433:5432'
+  - '127.0.0.1:${POSTGRES_PORT:-5433}:5432'
 ```
 
 Update `DATABASE_URL` accordingly.
