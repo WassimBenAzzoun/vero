@@ -1,6 +1,6 @@
 # Vero implementation guide
 
-Status: tasks 01/02 specifications, task 03 foundation and task 04 authentication implemented on 2026-11-22. Local PostgreSQL/Mailpit run in Docker. Google IDs are user-deferred and its button stays disabled; live Google/native verification remains pending. Next: task 05 shops/search. Deployment target: Heroku backend with the existing Supabase vero database after local testing.
+Status: tasks 01-08 implemented. Expo frontend polish/server rendering and task 10 release checks are in progress. Local PostgreSQL, Mailpit and S3Mock use Docker. Google web/Android IDs are configured; iOS Google remains disabled by request. Heroku + existing Supabase vero is the deployment target.
 
 ## Coding order
 
@@ -48,4 +48,9 @@ Design deliverables and runtime acceptance are tracked separately. Check a runti
 | 03 - Foundation and migration | Implemented: Vero schema, forward migration, roles, module boundaries and safe seed | Build/lint, unit tests, isolated migration/concurrency and HTTP checks passed |
 | 04 - Authentication | Implemented: Google boundary/linking, sessions, recovery, deletion, Expo auth screens and drafts | Local service/HTTP/browser verified; live Google and native device verification pending |
 | 05 - Shops/search | Implemented: canonical links, search, profiles, duplicate-safe creation and Expo flows | Unit, isolated database and real browser flows passed |
-| 06-10 | In progress | Pending implementation and verification |
+| 06 - Reviews/media | Implemented | PostgreSQL/S3Mock and browser photo publish/edit/delete passed |
+| 07 - Feed/engagement | Implemented | Ranking, pagination, likes/comments and browser tabs/RTL passed |
+| 08 - Moderation | Implemented | Database and web admin hide/restore/merge/report/session checks passed |
+| 09 - Expo frontend | Implemented; release polish in progress | Web/Android/iOS bundles pass; physical device checks pending |
+| 10 - Release | In progress | Local migration, unit/integration and backup/restore pass; deployment pending |
+

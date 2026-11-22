@@ -1,0 +1,8 @@
+{
+  "name":"vero-deployment",
+  "private":true,
+  "version":"1.0.0",
+  "engines":{"node":"24.x"},
+  "scripts":{"start":"node backend/dist/main.js","heroku-postbuild":"node scripts/heroku-build.cjs"},
+  "dependencies":{"pnpm":"12.21.0"}
+}

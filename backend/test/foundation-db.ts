@@ -81,7 +81,9 @@ async function rejectsSql(
 
 async function testLegacy() {
   const { client } = await database('legacy');
-  for (const dir of dirs.slice(0, -1))
+  for (const dir of dirs.filter(
+    (dir) => dir < '20261122000100_vero_foundation',
+  ))
     await client.query(
       readFileSync(resolve(migrations, dir, 'migration.sql'), 'utf8'),
     );
@@ -108,9 +110,12 @@ async function testLegacy() {
     "INSERT INTO project_members (id,project_id,user_id,role,updated_at) VALUES ($1,$2,$3,'OWNER',now())",
     [memberId, projectId, ids[1]],
   );
-  await client.query(
-    readFileSync(resolve(migrations, dirs.at(-1)!, 'migration.sql'), 'utf8'),
-  );
+  for (const dir of dirs.filter(
+    (dir) => dir >= '20261122000100_vero_foundation',
+  ))
+    await client.query(
+      readFileSync(resolve(migrations, dir, 'migration.sql'), 'utf8'),
+    );
   const rows = (
     await client.query(
       'SELECT id,email,password_hash,role FROM users ORDER BY email',
@@ -202,7 +207,7 @@ async function testFoundation() {
         'SELECT count(*)::int AS n FROM _prisma_migrations WHERE finished_at IS NOT NULL',
       )
     ).rows[0].n,
-    3,
+    dirs.length,
   );
   command(['node_modules/tsx/dist/cli.mjs', 'prisma/seed.ts'], env);
   const before = (
@@ -357,6 +362,19 @@ async function testFoundation() {
     await feedScenarios(db.url);
     await moderationScenarios(db.url);
     await testHttp(db.url, googleId);
+    const restored=await database('restore');
+    const archive=`/tmp/${db.name}.dump`;
+    const docker=(args:string[])=>{const run=spawnSync('docker',['exec','vero-postgres-1',...args],{encoding:'utf8'});assert.equal(run.status,0,run.stderr);};
+    try {
+      docker(['pg_dump','-U','vero','-d',db.name,'--format=custom','--no-owner','--no-acl','--file',archive]);
+      docker(['pg_restore','-U','vero','-d',restored.name,'--exit-on-error','--no-owner','--no-acl',archive]);
+      for(const table of ['users','reviews','reports','moderation_actions']) {
+        const original=await db.client.query(`SELECT count(*)::int AS n FROM ${table}`);
+        const copy=await restored.client.query(`SELECT count(*)::int AS n FROM ${table}`);
+        assert.equal(copy.rows[0].n,original.rows[0].n);
+      }
+      console.log('PASS Docker backup/restore roundtrip: users, reviews, reports and audit records preserved');
+    } finally {docker(['rm',archive]);}
   }
 }
 
