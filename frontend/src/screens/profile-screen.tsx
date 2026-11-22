@@ -13,7 +13,9 @@ export function ProfileScreen() {
   const { t } = useLocale();
   const [password, setPassword] = useState("");
   const [next, setNext] = useState("");
-  const [deleting, setDeleting] = useState(false);
+  const [action, setAction] = useState<"password" | "link" | "delete" | null>(
+    null,
+  );
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   const [security, setSecurity] = useState<{
@@ -81,6 +83,14 @@ export function ProfileScreen() {
     await clear();
     router.replace("/");
   };
+  const chooseAction = (value: typeof action) => {
+    setPassword("");
+    setNext("");
+    setMessage("");
+    setAction(value);
+  };
+  const canLink =
+    security?.hasPassword && !security.googleLinked && config.googleEnabled;
   return (
     <Page title={user.fullName} subtitle={user.email}>
       <Notice text={message} />
@@ -89,15 +99,24 @@ export function ProfileScreen() {
         onPress={() => router.push("/my-reviews")}
       />
       {!security && <Notice text={t.loading} />}
-      {security?.hasPassword && (
+      {security?.hasPassword && action !== "password" && (
+        <TextAction
+          title={t.changePassword}
+          onPress={() => chooseAction("password")}
+        />
+      )}
+      {action === "delete" && <T>{t.deleteExplain}</T>}
+      {security?.hasPassword && action && (
+        <Field
+          label={t.currentPassword}
+          password
+          value={password}
+          onChangeText={setPassword}
+          maxLength={128}
+        />
+      )}
+      {security?.hasPassword && action === "password" && (
         <>
-          <Field
-            label={t.currentPassword}
-            password
-            value={password}
-            onChangeText={setPassword}
-            maxLength={128}
-          />
           <Field
             label={t.newPassword}
             password
@@ -126,30 +145,31 @@ export function ProfileScreen() {
         </>
       )}
       {security?.googleLinked && <Notice text={t.googleConnected} />}
-      {security?.hasPassword &&
-        !security.googleLinked &&
-        config.googleEnabled && (
-          <>
-            <T>{t.linkGoogle}</T>
-            <GoogleButton
-              enabled
-              clientId={config.googleWebClientId}
-              onToken={async (idToken) => {
-                await run(async () => {
-                  await post("/auth/google/link", {
-                    idToken,
-                    currentPassword: password,
-                  });
-                  setMessage(t.saved);
-                  setSecurity({ hasPassword: true, googleLinked: true });
+      {canLink && action !== "link" && (
+        <TextAction title={t.linkGoogle} onPress={() => chooseAction("link")} />
+      )}
+      {canLink && action === "link" && (
+        <>
+          <GoogleButton
+            enabled
+            clientId={config.googleWebClientId}
+            onToken={async (idToken) => {
+              await run(async () => {
+                await post("/auth/google/link", {
+                  idToken,
+                  currentPassword: password,
                 });
-              }}
-              onError={(error) =>
-                setMessage(error instanceof Error ? error.message : t.network)
-              }
-            />
-          </>
-        )}
+                chooseAction(null);
+                setMessage(t.saved);
+                setSecurity({ hasPassword: true, googleLinked: true });
+              });
+            }}
+            onError={(error) =>
+              setMessage(error instanceof Error ? error.message : t.network)
+            }
+          />
+        </>
+      )}
       {user.role === "ADMIN" && process.env.EXPO_OS === "web" && (
         <Button
           title={t.admin}
@@ -168,12 +188,16 @@ export function ProfileScreen() {
           })
         }
       />
-      <View style={{ marginTop: 28 }}>
-        <TextAction title={t.deleteAccount} onPress={() => setDeleting(true)} />
-      </View>
-      {deleting && (
+      {action !== "delete" && (
+        <View style={{ marginTop: 28 }}>
+          <TextAction
+            title={t.deleteAccount}
+            onPress={() => chooseAction("delete")}
+          />
+        </View>
+      )}
+      {action === "delete" && (
         <>
-          <T>{t.deleteExplain}</T>
           {security?.hasPassword && (
             <Button
               secondary
@@ -182,20 +206,24 @@ export function ProfileScreen() {
               onPress={() => void run(() => deleted())}
             />
           )}
-          {!security?.hasPassword && config.googleEnabled && (
-            <GoogleButton
-              enabled
-              clientId={config.googleWebClientId}
-              onToken={async (token) => {
-                await run(() => deleted(token));
-              }}
-              onError={(error) =>
-                setMessage(error instanceof Error ? error.message : t.network)
-              }
-            />
-          )}
-          <TextAction title={t.cancel} onPress={() => setDeleting(false)} />
+          {security?.googleLinked &&
+            !security.hasPassword &&
+            config.googleEnabled && (
+              <GoogleButton
+                enabled
+                clientId={config.googleWebClientId}
+                onToken={async (token) => {
+                  await run(() => deleted(token));
+                }}
+                onError={(error) =>
+                  setMessage(error instanceof Error ? error.message : t.network)
+                }
+              />
+            )}
         </>
+      )}
+      {action && (
+        <TextAction title={t.cancel} onPress={() => chooseAction(null)} />
       )}
     </Page>
   );

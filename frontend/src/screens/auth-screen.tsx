@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { View } from "react-native";
-import { router, useLocalSearchParams } from "expo-router";
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import * as Linking from "expo-linking";
 import { Button, Field, Notice, Page, T, TextAction } from "../components/ui";
 import { GoogleButton } from "../components/google-button";
@@ -33,6 +33,14 @@ export function AuthScreen({ mode }: { mode: Mode }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
+  const signingIn = useRef(false);
+  const signingInRoute = mode === "login" || mode === "register";
+  useFocusEffect(
+    useCallback(() => {
+      if (signingInRoute && auth.ready && auth.user)
+        router.replace(destination as "/profile");
+    }, [auth.ready, auth.user, destination, signingInRoute]),
+  );
   useEffect(() => {
     if (mode !== "reset") return;
     const read = (url: string | null) => {
@@ -48,11 +56,18 @@ export function AuthScreen({ mode }: { mode: Mode }) {
         ? t.linkRequired
         : value instanceof ApiError
           ? value.message
-          : value instanceof Error && value.message === t.googleCanceled
+          : value instanceof Error &&
+              [
+                t.googleCanceled,
+                t.googleNativeConfig,
+                t.googlePlayServices,
+                t.googleNativeFailed,
+              ].includes(value.message)
             ? t.googleCanceled
             : t.network,
     );
   const submit = async () => {
+    if (!auth.ready || signingIn.current) return;
     setError("");
     setNotice("");
     if (mode !== "reset" && !email.trim()) return setError(t.required);
@@ -66,6 +81,7 @@ export function AuthScreen({ mode }: { mode: Mode }) {
       return setError(t.passwordRule);
     if ((mode === "register" || mode === "reset") && password !== confirm)
       return setError(t.mismatch);
+    signingIn.current = true;
     setBusy(true);
     try {
       if (mode === "login") await auth.signIn(email.trim(), password);
@@ -81,22 +97,25 @@ export function AuthScreen({ mode }: { mode: Mode }) {
         setPassword("");
         setConfirm("");
         setNotice(t.passwordUpdated);
-      } else router.replace(destination as "/profile");
+      }
     } catch (value) {
       failed(value);
     } finally {
+      signingIn.current = false;
       setBusy(false);
     }
   };
   const google = async (idToken: string) => {
+    if (!auth.ready || signingIn.current) return;
+    signingIn.current = true;
     setBusy(true);
     setError("");
     try {
       await auth.google(idToken);
-      router.replace(destination as "/profile");
     } catch (value) {
       failed(value);
     } finally {
+      signingIn.current = false;
       setBusy(false);
     }
   };
@@ -175,7 +194,9 @@ export function AuthScreen({ mode }: { mode: Mode }) {
                 : t.reset
         }
         busy={busy}
-        disabled={mode === "forgot" && !auth.config.recoveryEnabled}
+        disabled={
+          !auth.ready || (mode === "forgot" && !auth.config.recoveryEnabled)
+        }
         onPress={() => void submit()}
         testID="auth-submit"
       />
@@ -198,7 +219,7 @@ export function AuthScreen({ mode }: { mode: Mode }) {
             clientId={auth.config.googleWebClientId}
             onToken={google}
             onError={failed}
-            busy={busy}
+            busy={busy || !auth.ready}
           />
           <View
             style={{

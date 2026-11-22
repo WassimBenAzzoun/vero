@@ -1,8 +1,9 @@
 import { readRefresh, writeRefresh } from "./session-store";
+import { Platform } from "react-native";
 export const API = (
   process.env.EXPO_PUBLIC_API_URL || "http://localhost:3000/api"
 ).replace(/\/$/, "");
-export const client = process.env.EXPO_OS === "web" ? "web" : "native";
+export const client = Platform.OS === "web" ? "web" : "native";
 export type User = {
   id: string;
   email: string;
@@ -27,16 +28,30 @@ export class ApiError extends Error {
 let accessToken: string | null = null;
 let listener: ((user: User | null) => void) | undefined;
 let refreshing: Promise<Session> | null = null;
+let sessionVersion = 0;
 export const onSession = (value: typeof listener) => {
   listener = value;
 };
 export async function acceptSession(session: Session) {
+  // Let an earlier token rotation settle before replacing its credentials.
+  if (refreshing) await refreshing.catch(() => {});
+  if (client === "native" && !session.refreshToken)
+    throw new ApiError(
+      502,
+      "MISSING_REFRESH_TOKEN",
+      "Session incomplète. Réessayez.",
+    );
+  return saveSession(session);
+}
+async function saveSession(session: Session) {
   await writeRefresh(session.refreshToken || null);
+  sessionVersion++;
   accessToken = session.accessToken;
   listener?.(session.user);
   return session;
 }
 export async function clearSession() {
+  sessionVersion++;
   accessToken = null;
   await writeRefresh(null);
   listener?.(null);
@@ -48,7 +63,7 @@ async function raw<T>(path: string, options: RequestInit = {}): Promise<T> {
     const response = await fetch(`${API}${path}`, {
       ...options,
       signal: controller.signal,
-      credentials: "include",
+      credentials: client === "web" ? "include" : "omit",
       headers: {
         ...(options.body instanceof FormData
           ? {}
@@ -78,7 +93,7 @@ export async function refreshSession() {
         const refreshToken = await readRefresh();
         if (client === "native" && !refreshToken)
           throw new ApiError(401, "UNAUTHORIZED", "No session");
-        return await acceptSession(
+        return await saveSession(
           await raw<Session>("/auth/refresh", {
             method: "POST",
             body: JSON.stringify({
@@ -102,6 +117,7 @@ export async function api<T>(
   options: RequestInit = {},
   retry = true,
 ): Promise<T> {
+  const version = sessionVersion;
   try {
     return await raw<T>(path, options);
   } catch (error) {
@@ -113,6 +129,9 @@ export async function api<T>(
         path.startsWith("/auth/me") ||
         path === "/auth/google/link")
     ) {
+      // A response from the previous session must not rotate the new session.
+      if (version !== sessionVersion) return raw<T>(path, options);
+      if (client === "native" && !accessToken && !refreshing) throw error;
       try {
         await refreshSession();
       } catch (refreshError) {
@@ -132,6 +151,7 @@ export async function api<T>(
 export const post = <T>(path: string, body: unknown) =>
   api<T>(path, { method: "POST", body: JSON.stringify(body) });
 export async function signOut() {
+  if (refreshing) await refreshing.catch(() => {});
   const refreshToken = await readRefresh();
   await post("/auth/logout", {
     client,

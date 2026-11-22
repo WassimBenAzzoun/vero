@@ -81,6 +81,11 @@ const fr = {
   openShop: "Ouvrir la page",
   error: "Une erreur est survenue.",
   googleCanceled: "Connexion annulée. Votre brouillon est conservé.",
+  googleNativeConfig:
+    "Google a refusé la configuration de cette version. Utilisez votre mot de passe ou réessayez avec une version à jour de Vero.",
+  googlePlayServices: "Mettez à jour les services Google Play, puis réessayez.",
+  googleNativeFailed:
+    "Google n’a pas pu terminer la connexion. Réessayez ou connectez-vous par e-mail.",
   resetInvalid: "Ce lien est invalide ou expiré.",
   recoveryDisabled: "La récupération par email n’est pas configurée.",
   sessionExpired: "Votre session a expiré. Reconnectez-vous.",
@@ -220,6 +225,11 @@ const ar: typeof fr = {
   openShop: "افتح الصفحة",
   error: "صار خطأ.",
   googleCanceled: "تمّ الإلغاء. مسودّتك محفوظة.",
+  googleNativeConfig:
+    "Google رفض إعدادات النسخة هاذي. استعمل كلمة السرّ أو جرّب بنسخة محدّثة من Vero.",
+  googlePlayServices: "حدّث خدمات Google Play وبعد عاود جرّب.",
+  googleNativeFailed:
+    "Google ما كمّلش تسجيل الدخول. عاود جرّب أو ادخل بالإيميل.",
   resetInvalid: "الرابط غير صالح أو انتهت مدّته.",
   recoveryDisabled: "استرجاع كلمة المرور مش مفعّل.",
   sessionExpired: "انتهت الجلسة. عاود الدخول.",
