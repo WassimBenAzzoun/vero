@@ -22,7 +22,7 @@ The database URL uses `sslmode=verify-full` and `sslrootcert=/app/backend/certs/
 
 Google web and Android IDs were imported without copying the supplied web client secret. Android package: `com.vero.app`. The user confirmed the canonical HTTPS origin was added in Google Cloud. Native Google requires the installed APK's signing SHA-1 to match its Android OAuth client. Live account/device verification remains separate. iOS Google stays disabled by request; email/password remains available.
 
-Production password recovery remains disabled until `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `MAIL_FROM` and any provider credentials are configured. Set `PASSWORD_RESET_URL` to the canonical `/reset-password` page. Local Mailpit verifies recovery without sending external messages.
+Per the user's explicit choice, production password recovery stays disabled for now. To enable it later, `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `MAIL_FROM` and any provider credentials must be configured. Set `PASSWORD_RESET_URL` to the canonical `/reset-password` page. Local Mailpit verifies recovery without sending external messages.
 
 An explicit one-time admin script is available at `backend/scripts/provision-admin.cjs`, requiring `BOOTSTRAP_ADMIN_EMAIL` and a strong `BOOTSTRAP_ADMIN_PASSWORD`. It never logs credentials, never creates demo reviews, and does not reset an existing account's password. Bootstrap config variables have been removed. The selected admin, `wassimbenazzoun.tn@gmail.com`, already signed up with Google and was promoted while preserving its Google-only identity. No temporary password applies.
 
@@ -42,7 +42,7 @@ HTML and loader responses use `no-store`. `/sitemap.xml` contains only visible s
 
 EAS project `@wassimba/vero`, ID `7052daca-cac9-47e6-b927-f9642ff71d2c`. Preview builds produce an internal Android APK against the canonical API. Production profile prepares an Android AAB; no Play Store submission is configured. Existing EAS-managed signing credentials are reused. Upload exclusions were inspected; private environment and signing files are excluded. No Apple membership/iOS signing or store publication is configured.
 
-The initial APK build was canceled after the Google-only profile correction. Replacement build from `93d5afa`: https://expo.dev/accounts/wassimba/projects/vero/builds/edd06884-be59-491e-8c57-4549da5d249d. Record its final status and artifact after completion; a queued build is not a verified APK. EAS signing SHA-1: `9A:D1:CB:4F:0D:FB:E3:64:55:E2:36:D8:E4:26:36:3C:04:B5:FF:BE`; the user confirmed its registration in Google Cloud.
+The initial APK build was canceled after the Google-only profile correction. Replacement build from `93d5afa`: https://expo.dev/accounts/wassimba/projects/vero/builds/edd06884-be59-491e-8c57-4549da5d249d. Status: FINISHED. Downloaded to `C:/Users/Admin/Downloads/vero-preview-edd06884.apk` (106,837,770 bytes). ZIP/package/DEX/Hermes contents and the production API/profile-fix strings were checked; the signing certificate SHA-1 matches the EAS key. SHA-256: `50291ad0fb74b4f2b9888a86ea29c921f48a4f28657e4674a7b69273c87d552a`. Physical installation, Google sign-in and native UI remain device checks. EAS signing SHA-1: `9A:D1:CB:4F:0D:FB:E3:64:55:E2:36:D8:E4:26:36:3C:04:B5:FF:BE`; the user confirmed its registration in Google Cloud.
 
 ## Deployment evidence — 2026-11-22
 

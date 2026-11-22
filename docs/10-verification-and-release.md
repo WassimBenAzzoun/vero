@@ -31,7 +31,8 @@ Run on real Android/iOS development builds and web desktop/mobile widths. Includ
 - [x] Verify local backup/restore and a production PostgreSQL 17 dump restore into isolated Docker; verify private media access and credential-free application request logs.
 - [ ] Configure off-machine backup retention for database/objects and an operational error-monitoring/alert destination.
 - [x] Deploy server-rendered Expo web. Local real shop/review HTML and ratings checks pass; live health, HTML, robots, sitemap and private object access pass.
-- [ ] Prepare Android testing APK and store AAB, and iOS test distribution/build credentials. Check current store submission requirements at release time, including authentication/account deletion requirements relevant to Google sign-in.
+- [x] Build and inspect the signed internal Android testing APK against the production API; keep a production AAB build profile ready.
+- [ ] Complete physical-device QA and arrange store AAB/iOS signing and distribution credentials when store release is requested. No store submission or iOS membership is claimed.
 - [x] Keep all demo reviews outside production; production starts with no seeded reviews.
 - [x] Promote the owner's existing Google account to ADMIN, preserving its password-free sign-in.
 - [ ] Measure search success/no-results, review completion, Google failures, upload errors, feed interaction and report turnaround. Keep analytics free of review drafts and credentials.
@@ -39,4 +40,4 @@ Run on real Android/iOS development builds and web desktop/mobile widths. Includ
 Publishing/deployment and provider-console changes are separate tasks. Record exact environments, commands, screenshots/device evidence and any unverified flow before declaring a pilot ready.
 
 
-Release evidence: 25 unit tests plus isolated migration/auth/shop/review/media/feed/moderation scenarios passed, as did Docker backup restoration, frontend type/lint, web/Android/iOS bundle exports, browser review/photo/moderation/engagement and Google-only profile regression checks. Google web login was reported by the user. Native device Google cancellation/RTL/keyboard/sharing remain unverified. Production SMTP is intentionally disabled until provider credentials are supplied. A corrected Android APK build is in progress; no store publication or iOS credentials are claimed.
+Release evidence: 25 unit tests plus isolated migration/auth/shop/review/media/feed/moderation scenarios passed, as did Docker backup restoration, frontend type/lint, web/Android/iOS bundle exports, browser review/photo/moderation/engagement and Google-only profile regression checks. Google web login was reported by the user. Native device Google cancellation/RTL/keyboard/sharing remain unverified. Production SMTP is intentionally disabled until provider credentials are supplied. The corrected Android APK finished and its package, production API URL, profile fix and signing fingerprint were inspected; no store publication or iOS credentials are claimed.

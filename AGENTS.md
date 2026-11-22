@@ -19,7 +19,7 @@ This root file applies throughout the repository. Read nested AGENTS.md files fo
 
 ## Stack and repository
 
-- `frontend/`: Expo + React Native + TypeScript for iOS, Android and web. It is empty at planning time. Use Expo Router; do not replace Expo with a Vite-only website.
+- `frontend/`: Expo SDK 58 + React Native + TypeScript with Expo Router for iOS, Android and server-rendered web. Use npm and its package-lock.json here; do not replace Expo with a Vite-only website.
 - The user selected the Expo plugin (`expo2`). Read its `expo-overview` and applicable leaf skills for frontend work. For a new app use `src/app/` for routes only, sibling `screens/` and `components/` for UI, and platform adapters where needed. Keep backend logic in NestJS.
 - `backend/`: existing NestJS REST API, Prisma and PostgreSQL. Extend existing auth, guards, users, validation, Swagger and health modules.
 - Run local PostgreSQL through Docker Compose using `backend/docker-compose.dev.yml`; see `docs/12-docker-database.md`. Preserve its named volume and never delete/reset data as routine setup.
@@ -28,6 +28,9 @@ This root file applies throughout the repository. Read nested AGENTS.md files fo
 - `docs/`: ordered implementation plan, architecture, proposed API, brand direction and verification checklist.
 
 ## Implementation habits
+
+- Heroku `vero-app` serves NestJS and the Expo web export at `https://vero-backend.cloudplay.tech`; production PostgreSQL/private photos use the existing Supabase `vero` project. Local development/tests use Docker PostgreSQL, Mailpit and S3Mock. Read `docs/13-deployment.md` before deployment work.
+- Google web/Android are configured; iOS Google stays disabled by user request. Google-only profiles must not show password change/link controls; use `/auth/me/security` capabilities without exposing credential fields. Production password recovery is user-deferred and disabled until SMTP is configured.
 
 - Work in small vertical slices. Keep controllers thin, domain rules in services and persistence through Prisma. Validate all mutation inputs and enforce author/admin permissions server-side.
 - Public browsing must be explicitly public under the existing global JWT guard. Mutations require authentication; admin routes require ADMIN.

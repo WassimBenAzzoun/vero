@@ -1,6 +1,6 @@
 # Vero implementation guide
 
-Status: tasks 01-08 implemented. Expo frontend/server rendering and backend/web deployment are complete; Android build/device and pilot operations checks remain open. Local PostgreSQL, Mailpit and S3Mock use Docker. Google web/Android IDs are configured; iOS Google remains disabled by request. Heroku + existing Supabase vero is the deployment target.
+Status: tasks 01-08 implemented. Expo frontend/server rendering and backend/web deployment are complete; The signed Android testing APK is ready; device and pilot operations checks remain open. Local PostgreSQL, Mailpit and S3Mock use Docker. Google web/Android IDs are configured; iOS Google remains disabled by request. Heroku + existing Supabase vero is the deployment target.
 
 ## Coding order
 
@@ -52,5 +52,5 @@ Design deliverables and runtime acceptance are tracked separately. Check a runti
 | 07 - Feed/engagement | Implemented | Ranking, pagination, likes/comments and browser tabs/RTL passed |
 | 08 - Moderation | Implemented | Database and web admin hide/restore/merge/report/session checks passed |
 | 09 - Expo frontend | Implemented and web deployed | Web/Android/iOS bundles pass; physical device checks pending |
-| 10 - Release | Backend/web deployed; Android build in progress | Local checks and live health/storage pass; physical-device QA, SMTP and operations setup pending |
+| 10 - Release | Backend/web deployed and Android APK built/inspected | Local checks and live health/storage pass; physical-device QA and operations setup pending; SMTP user-deferred |
 
