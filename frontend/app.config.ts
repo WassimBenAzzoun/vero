@@ -2,6 +2,7 @@ import type { ExpoConfig } from "expo/config";
 const config: ExpoConfig = {
   name: "Vero",
   slug: "vero",
+  extra: { eas: { projectId: "7052daca-cac9-47e6-b927-f9642ff71d2c" } },
   scheme: "vero",
   version: "1.0.0",
   orientation: "portrait",
