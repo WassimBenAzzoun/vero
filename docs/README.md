@@ -1,6 +1,6 @@
 # Vero implementation guide
 
-Status: planning documents created on 2026-11-22. Task 01 specification completed; application implementation starts at task 03. Runtime acceptance remains pending.
+Status: tasks 01 and 02 specifications completed on 2026-11-22. Application implementation starts at task 03. Runtime acceptance remains pending. Local PostgreSQL uses Docker Compose.
 
 ## Coding order
 
@@ -17,6 +17,8 @@ Status: planning documents created on 2026-11-22. Task 01 specification complete
 | 9 | [Frontend and brand](09-frontend-and-brand.md) | Expo screens, brand tokens and localization |
 | 10 | [Verification and release](10-verification-and-release.md) | Verify the complete flow and prepare a pilot |
 | Reference | [API contract](11-api-contract.md) | Proposed REST endpoints and shared conventions |
+| Reference | [Docker database](12-docker-database.md) | Local PostgreSQL startup, connection and persistence |
+| Reference | [Data dictionary](design/data-dictionary.md) | Target fields, constraints and lifecycle rules |
 
 Implement each step with its relevant frontend flow rather than completing the entire backend before trying the app. The frontend document applies from the first visible screen onward.
 
@@ -42,5 +44,5 @@ Design deliverables and runtime acceptance are tracked separately. Check a runti
 | Task | Design deliverable | Runtime verification |
 | --- | --- | --- |
 | 01 - Product and UX | Complete: routes, flows, form rules and acceptance scenarios | Pending implementation |
-| 02 - Architecture and data | Initial outline; detailed conception in progress | Pending task 03 migrations and later services |
+| 02 - Architecture and data | Complete: module boundaries, ER diagram, data dictionary, visibility and transactions | Pending task 03 migrations and later services |
 | 03-10 | Planned | Not started |
