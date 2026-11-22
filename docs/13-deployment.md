@@ -24,7 +24,7 @@ Google web and Android IDs were imported without copying the supplied web client
 
 Production password recovery remains disabled until `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `MAIL_FROM` and any provider credentials are configured. Set `PASSWORD_RESET_URL` to the canonical `/reset-password` page. Local Mailpit verifies recovery without sending external messages.
 
-An explicit one-time admin script is available at `backend/scripts/provision-admin.cjs`, requiring `BOOTSTRAP_ADMIN_EMAIL` and a strong `BOOTSTRAP_ADMIN_PASSWORD`. It never logs credentials, never creates demo reviews, and does not reset an existing account's password. Remove bootstrap config variables after use. The selected admin is `wassimbenazzoun.tn@gmail.com`; its temporary password is delivered in an ignored local file, never in Git or chat.
+An explicit one-time admin script is available at `backend/scripts/provision-admin.cjs`, requiring `BOOTSTRAP_ADMIN_EMAIL` and a strong `BOOTSTRAP_ADMIN_PASSWORD`. It never logs credentials, never creates demo reviews, and does not reset an existing account's password. Bootstrap config variables have been removed. The selected admin, `wassimbenazzoun.tn@gmail.com`, already signed up with Google and was promoted while preserving its Google-only identity. No temporary password applies.
 
 ## Verification and recovery
 
@@ -42,4 +42,17 @@ HTML and loader responses use `no-store`. `/sitemap.xml` contains only visible s
 
 EAS project `@wassimba/vero`, ID `7052daca-cac9-47e6-b927-f9642ff71d2c`. Preview builds produce an internal Android APK against the canonical API. Production profile prepares an Android AAB; no Play Store submission is configured. Existing EAS-managed signing credentials are reused. Upload exclusions were inspected; private environment and signing files are excluded. No Apple membership/iOS signing or store publication is configured.
 
-APK build started from `288cf05`: https://expo.dev/accounts/wassimba/projects/vero/builds/25a148d8-f804-4e9c-addf-a7c99b29d675. Record its final status and artifact after completion; a queued build is not a verified APK.
+The initial APK build was canceled after the Google-only profile correction. Replacement build from `93d5afa`: https://expo.dev/accounts/wassimba/projects/vero/builds/edd06884-be59-491e-8c57-4549da5d249d. Record its final status and artifact after completion; a queued build is not a verified APK. EAS signing SHA-1: `9A:D1:CB:4F:0D:FB:E3:64:55:E2:36:D8:E4:26:36:3C:04:B5:FF:BE`; the user confirmed its registration in Google Cloud.
+
+## Deployment evidence — 2026-11-22
+
+Heroku release v11 deploys `93d5afa`, including the Google-only profile correction. The release migration completed with four applied migrations and no reset/demo seed. Web/DB health is up, provider/upload configuration is available, and public HTML/robots/sitemap routes respond. Private object upload/read and anonymous denial were verified using the replacement server key. A PostgreSQL 17 production dump was restored successfully into an isolated temporary Docker container, which was then removed. The ignored local dump is `tmp/vero-production-20261122.dump`; it is a local recovery artifact, not an off-machine backup service.
+
+Heroku ACM reports a valid Let's Encrypt certificate for the canonical hostname. This workstation's network substitutes a Fortinet certificate for that hostname. Browser verification therefore routed canonical-origin requests through the verified Heroku HTTPS hostname with the forwarded hostname preserved. No TLS verification was disabled for app/auth traffic. Direct canonical-domain testing on an unfiltered network remains distinct from that proxy-based check.
+
+The user reported successful Google web login and the profile password-form defect. The fix adds authenticated boolean sign-in capabilities and hides password controls for Google-only accounts; local real-database and browser fixture checks cover both account types. Password-account profile capabilities and like/unlike, comment create/edit/delete and report submission were additionally verified through the real local web/API flow.
+
+A release-inspection command accidentally emitted configuration values during deployment. Database, JWT and bootstrap credentials were rotated, and the user confirmed replacing/revoking the exposed Supabase server key. Replacement private storage access was verified; bootstrap variables were removed. Future contributors must use allowlisted provider output per AGENTS.md.
+
+GitHub write-access invitation sent to `MahdiBenAmeur` for `WassimBenAzzoun/vero` (invitation 345458524); acceptance is controlled by the invitee.
+GitHub write-access invitation also sent to `Dhia-dbh` (invitation 345459038), as requested.
