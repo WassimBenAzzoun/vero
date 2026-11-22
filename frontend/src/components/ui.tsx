@@ -257,6 +257,17 @@ export function Page({
   const { rtl, language, setLanguage, t } = useLocale();
   const insets = useSafeAreaInsets();
   const pathname = usePathname();
+  const web = process.env.EXPO_OS === "web";
+  const selectedRoute =
+    pathname === "/shops/new" ||
+    pathname === "/reviews/new" ||
+    pathname.endsWith("/edit")
+      ? "/reviews/new"
+      : pathname.startsWith("/shops/") || pathname === "/search"
+        ? "/search"
+        : pathname === "/my-reviews" || pathname === "/profile"
+          ? "/profile"
+          : "/";
   return (
     <KeyboardAvoidingView
       behavior={process.env.EXPO_OS === "ios" ? "padding" : undefined}
@@ -361,111 +372,126 @@ export function Page({
       {nav && (
         <View
           style={{
-            paddingBottom: Math.max(insets.bottom, 10),
-            paddingTop: 10,
-            paddingHorizontal: 18,
             borderTopWidth: 1,
             borderColor: colors.line,
-            flexDirection: rtl ? "row-reverse" : "row",
-            justifyContent: "space-around",
             backgroundColor: colors.sand,
           }}
         >
-          {[
-            [t.feed, "/"],
-            [t.search, "/search"],
-            [t.write, "/reviews/new"],
-            [t.profile, "/profile"],
-          ].map(([label, route], index) => (
-            <Pressable
-              key={route}
-              accessibilityRole="link"
-              onPress={() => router.push(route as "/")}
-              accessibilityState={{
-                selected:
-                  route === "/"
-                    ? pathname === "/" || pathname.startsWith("/shops")
-                    : pathname.startsWith(route),
-              }}
-              style={{ padding: 8, alignItems: "center", gap: 5, flex: 1 }}
-            >
-              <Svg width={23} height={23} viewBox="0 0 24 24">
-                {index === 0 ? (
-                  <Path
-                    d="M3 4H21 M3 12H21 M3 20H15"
-                    stroke={colors.ink}
-                    strokeWidth={1.8}
-                    strokeLinecap="round"
-                  />
-                ) : index === 1 ? (
-                  <>
-                    <Circle
-                      cx="10"
-                      cy="10"
-                      r="7"
-                      fill="none"
-                      stroke={colors.ink}
-                      strokeWidth={1.8}
-                    />
-                    <Path
-                      d="M15 15L22 22"
-                      stroke={colors.ink}
-                      strokeWidth={1.8}
-                      strokeLinecap="round"
-                    />
-                  </>
-                ) : index === 2 ? (
-                  <Path
-                    d="M4 16L3 22L9 21L21 9L15 3Z M13 5L19 11"
-                    fill="none"
-                    stroke={colors.ink}
-                    strokeWidth={1.8}
-                    strokeLinejoin="round"
-                  />
-                ) : (
-                  <>
-                    <Circle
-                      cx="12"
-                      cy="7"
-                      r="4"
-                      fill="none"
-                      stroke={colors.ink}
-                      strokeWidth={1.8}
-                    />
-                    <Path
-                      d="M4 22V18C4 12 20 12 20 18V22"
-                      fill="none"
-                      stroke={colors.ink}
-                      strokeWidth={1.8}
-                      strokeLinecap="round"
-                    />
-                  </>
-                )}
-              </Svg>
-              <T
-                style={{
-                  fontSize: 12,
-                  fontFamily: rtl ? fonts.arabic : fonts.strong,
+          <View
+            testID="bottom-navigation"
+            style={{
+              width: "100%",
+              maxWidth: web ? 480 : undefined,
+              alignSelf: "center",
+              paddingBottom: Math.max(insets.bottom, web ? 6 : 10),
+              paddingTop: web ? 6 : 10,
+              paddingHorizontal: web ? 10 : 18,
+              flexDirection: rtl ? "row-reverse" : "row",
+              gap: web ? 4 : 0,
+            }}
+          >
+            {[
+              [t.feed, "/"],
+              [t.search, "/search"],
+              [web ? t.navWrite : t.write, "/reviews/new"],
+              [t.profile, "/profile"],
+            ].map(([label, route], index) => (
+              <Pressable
+                key={route}
+                accessibilityRole="link"
+                onPress={() => {
+                  if (pathname !== route) router.navigate(route as "/");
                 }}
+                accessibilityState={{ selected: route === selectedRoute }}
+                style={({ pressed }) => ({
+                  paddingVertical: 7,
+                  paddingHorizontal: web ? 2 : 8,
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: web ? 3 : 5,
+                  minHeight: 52,
+                  minWidth: 0,
+                  flex: 1,
+                  borderRadius: 10,
+                  backgroundColor: pressed ? colors.line : "transparent",
+                })}
               >
-                {label}
-              </T>
-              <View
-                style={{
-                  height: 3,
-                  width: 40,
-                  borderRadius: 2,
-                  backgroundColor: (
-                    route === "/"
-                      ? pathname === "/" || pathname.startsWith("/shops")
-                      : pathname.startsWith(route)
-                  )
-                    ? colors.green
-                    : "transparent",
-                }}
-              />
-            </Pressable>
-          ))}
+                <Svg width={23} height={23} viewBox="0 0 24 24">
+                  {index === 0 ? (
+                    <Path
+                      d="M3 4H21 M3 12H21 M3 20H15"
+                      stroke={colors.ink}
+                      strokeWidth={1.8}
+                      strokeLinecap="round"
+                    />
+                  ) : index === 1 ? (
+                    <>
+                      <Circle
+                        cx="10"
+                        cy="10"
+                        r="7"
+                        fill="none"
+                        stroke={colors.ink}
+                        strokeWidth={1.8}
+                      />
+                      <Path
+                        d="M15 15L22 22"
+                        stroke={colors.ink}
+                        strokeWidth={1.8}
+                        strokeLinecap="round"
+                      />
+                    </>
+                  ) : index === 2 ? (
+                    <Path
+                      d="M4 16L3 22L9 21L21 9L15 3Z M13 5L19 11"
+                      fill="none"
+                      stroke={colors.ink}
+                      strokeWidth={1.8}
+                      strokeLinejoin="round"
+                    />
+                  ) : (
+                    <>
+                      <Circle
+                        cx="12"
+                        cy="7"
+                        r="4"
+                        fill="none"
+                        stroke={colors.ink}
+                        strokeWidth={1.8}
+                      />
+                      <Path
+                        d="M4 22V18C4 12 20 12 20 18V22"
+                        fill="none"
+                        stroke={colors.ink}
+                        strokeWidth={1.8}
+                        strokeLinecap="round"
+                      />
+                    </>
+                  )}
+                </Svg>
+                <T
+                  numberOfLines={web ? 1 : undefined}
+                  style={{
+                    fontSize: 12,
+                    textAlign: "center",
+                    lineHeight: web ? 18 : undefined,
+                    fontFamily: rtl ? fonts.arabic : fonts.strong,
+                  }}
+                >
+                  {label}
+                </T>
+                <View
+                  style={{
+                    height: 3,
+                    width: web ? 22 : 40,
+                    borderRadius: 2,
+                    backgroundColor:
+                      route === selectedRoute ? colors.green : "transparent",
+                  }}
+                />
+              </Pressable>
+            ))}
+          </View>
         </View>
       )}
     </KeyboardAvoidingView>
