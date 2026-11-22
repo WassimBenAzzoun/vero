@@ -216,6 +216,15 @@ export class AuthController {
     return this.authService.getProfile(user.id);
   }
 
+  @Get('me/security')
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Get current account sign-in methods without credential fields',
+  })
+  security(@CurrentUser() user: { id: string }) {
+    return this.authService.security(user.id);
+  }
+
   @Patch('me')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Update current user profile' })

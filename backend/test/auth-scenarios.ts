@@ -52,7 +52,15 @@ export async function authScenarios(url: string) {
     await assert.rejects(
       auth.linkGoogle(local.user.id, 'collision', 'incorrect'),
     );
+    assert.deepEqual(await auth.security(local.user.id), {
+      hasPassword: true,
+      googleLinked: false,
+    });
     await auth.linkGoogle(local.user.id, 'collision', password);
+    assert.deepEqual(await auth.security(local.user.id), {
+      hasPassword: true,
+      googleLinked: true,
+    });
     assert.equal((await auth.googleLogin('collision')).user.id, local.user.id);
     const parallel = await Promise.all([
       auth.googleLogin('new-subject'),
@@ -71,6 +79,17 @@ export async function authScenarios(url: string) {
     assert.notEqual(rotated.refreshToken, local.refreshToken);
     await assert.rejects(sessions.refresh(local.refreshToken));
     await assert.rejects(sessions.refresh(rotated.refreshToken));
+    const googleOnly = await auth.googleLogin('new-subject');
+    assert.deepEqual(await auth.security(googleOnly.user.id), {
+      hasPassword: false,
+      googleLinked: true,
+    });
+    await assert.rejects(
+      auth.changePassword(googleOnly.user.id, {
+        currentPassword: 'irrelevant',
+        newPassword: password,
+      }),
+    );
     const fresh = await auth.login({ email: local.user.email, password });
     await sessions.logout(fresh.refreshToken);
     await assert.rejects(sessions.refresh(fresh.refreshToken));

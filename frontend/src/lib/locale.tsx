@@ -50,6 +50,7 @@ const fr = {
   confirmDelete: "Confirmer la suppression",
   cancel: "Annuler",
   linkGoogle: "Lier mon compte Google",
+  googleConnected: "Connexion avec Google",
   linkRequired:
     "Connectez-vous avec votre mot de passe, puis liez Google depuis votre profil.",
   unavailable: "Ce contenu est indisponible.",
@@ -190,6 +191,7 @@ const ar: typeof fr = {
   confirmDelete: "تأكيد الحذف",
   cancel: "إلغاء",
   linkGoogle: "ربط حساب Google",
+  googleConnected: "الدخول بحساب Google",
   linkRequired: "ادخل بكلمة المرور وبعد اربط Google من حسابك.",
   unavailable: "المحتوى هذا مش متاح.",
   searchTitle: "قبل ما تشري، ثبّت.",

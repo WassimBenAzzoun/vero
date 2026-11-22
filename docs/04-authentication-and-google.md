@@ -61,3 +61,6 @@ Recheck these references against installed versions before coding.
 
 Configuration update: public web/Android IDs imported from the supplied files; package com.vero.app confirmed. User confirmed the production web origin was added in Google Cloud. iOS Google stays unconfigured. Live Google sign-in and Android signing SHA matching still require verification.
 
+
+Profile correction: GET /auth/me/security exposes only hasPassword/googleLinked booleans. Google-only profiles hide password change/link controls and use Google reauthentication for deletion; password accounts retain their password controls. Real database auth scenarios and browser session-fixture regressions verify both account types. Credential fields remain private.
+

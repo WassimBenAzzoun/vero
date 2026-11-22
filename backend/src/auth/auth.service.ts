@@ -164,6 +164,21 @@ export class AuthService {
       select: safeUserSelect,
     });
   }
+  async security(userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        isActive: true,
+        passwordHash: true,
+        identities: { where: { provider: 'GOOGLE' }, select: { id: true } },
+      },
+    });
+    if (!user?.isActive) throw new UnauthorizedException();
+    return {
+      hasPassword: user.passwordHash !== null,
+      googleLinked: user.identities.length > 0,
+    };
+  }
   async changePassword(userId: string, dto: ChangePasswordDto) {
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
     if (
