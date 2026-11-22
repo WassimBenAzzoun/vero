@@ -5,7 +5,7 @@ import { useAuth } from "../lib/auth";
 import { api, clearSession, post, signOut } from "../lib/api";
 import { useDraft } from "../lib/draft";
 import { useLocale } from "../lib/locale";
-import { Button, Field, Notice, Page, T, TextAction } from "../components/ui";
+import { Button, Field, Notice, Page, T } from "../components/ui";
 import { GoogleButton } from "../components/google-button";
 export function ProfileScreen() {
   const { user, config, ready } = useAuth();
@@ -68,7 +68,8 @@ export function ProfileScreen() {
             })
           }
         />
-        <TextAction
+        <Button
+          secondary
           title={t.register}
           onPress={() => router.push("/register")}
         />
@@ -94,13 +95,11 @@ export function ProfileScreen() {
   return (
     <Page title={user.fullName} subtitle={user.email}>
       <Notice text={message} />
-      <TextAction
-        title={t.myReviews}
-        onPress={() => router.push("/my-reviews")}
-      />
+      <Button title={t.myReviews} onPress={() => router.push("/my-reviews")} />
       {!security && <Notice text={t.loading} />}
       {security?.hasPassword && action !== "password" && (
-        <TextAction
+        <Button
+          secondary
           title={t.changePassword}
           onPress={() => chooseAction("password")}
         />
@@ -146,7 +145,11 @@ export function ProfileScreen() {
       )}
       {security?.googleLinked && <Notice text={t.googleConnected} />}
       {canLink && action !== "link" && (
-        <TextAction title={t.linkGoogle} onPress={() => chooseAction("link")} />
+        <Button
+          secondary
+          title={t.linkGoogle}
+          onPress={() => chooseAction("link")}
+        />
       )}
       {canLink && action === "link" && (
         <>
@@ -178,6 +181,7 @@ export function ProfileScreen() {
         />
       )}
       <Button
+        secondary
         title={t.signOut}
         busy={busy}
         onPress={() =>
@@ -190,7 +194,8 @@ export function ProfileScreen() {
       />
       {action !== "delete" && (
         <View style={{ marginTop: 28 }}>
-          <TextAction
+          <Button
+            secondary
             title={t.deleteAccount}
             onPress={() => chooseAction("delete")}
           />
@@ -223,7 +228,7 @@ export function ProfileScreen() {
         </>
       )}
       {action && (
-        <TextAction title={t.cancel} onPress={() => chooseAction(null)} />
+        <Button secondary title={t.cancel} onPress={() => chooseAction(null)} />
       )}
     </Page>
   );
