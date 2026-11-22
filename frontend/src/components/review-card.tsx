@@ -47,105 +47,44 @@ export function ReviewCard({
     }
   };
   const menuButton = canManage && (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={t.reviewOptions}
-      accessibilityState={{ expanded: menuOpen, disabled: busy }}
-      disabled={busy}
-      onPress={() => {
-        setMenuOpen(!menuOpen);
-        setConfirm(false);
-        setError("");
-      }}
-      style={({ pressed }) => ({
-        width: 44,
-        height: 44,
-        alignItems: "center",
-        justifyContent: "center",
-        borderRadius: 22,
-        backgroundColor:
-          pressed || menuOpen
-            ? colors.line
-            : feedCard
-              ? colors.sand
-              : "transparent",
-      })}
-    >
-      <T style={{ fontSize: 24, lineHeight: 28 }}>⋮</T>
-    </Pressable>
-  );
-  return (
-    <View
-      style={{
-        borderWidth: feedCard ? 1 : 0,
-        borderTopWidth: 1,
-        borderRadius: feedCard ? 16 : 0,
-        borderColor: colors.line,
-        backgroundColor: feedCard ? colors.white : undefined,
-        paddingVertical: feedCard ? 14 : 21,
-        paddingHorizontal: feedCard ? 14 : 0,
-        gap: 12,
-      }}
-    >
-      {feedCard && (
-        <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-          <Pressable
-            accessibilityRole="button"
-            onPress={openShop}
-            style={{
-              flex: 1,
-              minWidth: 0,
-              minHeight: 44,
-              justifyContent: "center",
-            }}
-          >
-            <T
-              style={{
-                fontSize: 21,
-                lineHeight: rtl ? 32 : 28,
-                fontFamily: rtl ? fonts.arabic : fonts.heading,
-              }}
-            >
-              {review.shop.name}
-            </T>
-          </Pressable>
-          {menuButton}
-        </View>
-      )}
-      <View style={{ flexDirection: "row", alignItems: "center", gap: 11 }}>
+    <View>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={t.reviewOptions}
+        accessibilityState={{ expanded: menuOpen, disabled: busy }}
+        disabled={busy}
+        onPress={() => {
+          setMenuOpen(!menuOpen);
+          setConfirm(false);
+          setError("");
+        }}
+        style={({ pressed }) => ({
+          width: 44,
+          height: 44,
+          alignItems: "center",
+          justifyContent: "center",
+          borderRadius: 22,
+          backgroundColor:
+            pressed || menuOpen
+              ? colors.line
+              : feedCard
+                ? colors.sand
+                : "transparent",
+        })}
+      >
+        <T style={{ fontSize: 24, lineHeight: 28 }}>⋮</T>
+      </Pressable>
+      {menuOpen && (
         <View
           style={{
-            width: feedCard ? 32 : 40,
-            height: feedCard ? 32 : 40,
-            borderRadius: 20,
-            alignItems: "center",
-            justifyContent: "center",
-            backgroundColor: colors.ink,
-          }}
-        >
-          <T style={{ color: colors.sand, fontFamily: fonts.strong }}>
-            {review.author.fullName.slice(0, 1).toUpperCase()}
-          </T>
-        </View>
-        <View style={{ flex: 1 }}>
-          <T style={{ fontFamily: rtl ? fonts.arabic : fonts.strong }}>
-            {review.author.fullName}
-          </T>
-          <T style={{ fontSize: 12, color: colors.muted }}>
-            {new Date(review.createdAt).toLocaleDateString(
-              language === "ar" ? "ar-TN" : "fr-TN",
-            )}
-          </T>
-        </View>
-        <T style={{ fontFamily: fonts.strong }}>★ {review.rating}/5</T>
-        {!feedCard && menuButton}
-      </View>
-      {canManage && menuOpen && (
-        <View
-          style={{
-            alignSelf: "flex-end",
+            position: "absolute",
+            top: "100%",
+            marginTop: 4,
+            end: 0,
+            zIndex: 3,
+            elevation: 6,
+            boxShadow: "0 6px 18px rgba(20, 26, 70, 0.16)",
             width: 230,
-            maxWidth: "100%",
             paddingHorizontal: 14,
             paddingVertical: 4,
             borderWidth: 1,
@@ -192,6 +131,89 @@ export function ReviewCard({
           <Notice error text={error} />
         </View>
       )}
+    </View>
+  );
+  return (
+    <View
+      style={{
+        borderWidth: feedCard ? 1 : 0,
+        borderTopWidth: 1,
+        borderRadius: feedCard ? 16 : 0,
+        borderColor: colors.line,
+        backgroundColor: feedCard ? colors.white : undefined,
+        paddingVertical: feedCard ? 14 : 21,
+        paddingHorizontal: feedCard ? 14 : 0,
+        gap: 12,
+        zIndex: canManage && menuOpen ? 2 : 0,
+      }}
+    >
+      {feedCard && (
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            gap: 8,
+            zIndex: menuOpen ? 1 : 0,
+          }}
+        >
+          <Pressable
+            accessibilityRole="button"
+            onPress={openShop}
+            style={{
+              flex: 1,
+              minWidth: 0,
+              minHeight: 44,
+              justifyContent: "center",
+            }}
+          >
+            <T
+              style={{
+                fontSize: 21,
+                lineHeight: rtl ? 32 : 28,
+                fontFamily: rtl ? fonts.arabic : fonts.heading,
+              }}
+            >
+              {review.shop.name}
+            </T>
+          </Pressable>
+          {menuButton}
+        </View>
+      )}
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          gap: 11,
+          zIndex: !feedCard && menuOpen ? 1 : 0,
+        }}
+      >
+        <View
+          style={{
+            width: feedCard ? 32 : 40,
+            height: feedCard ? 32 : 40,
+            borderRadius: 20,
+            alignItems: "center",
+            justifyContent: "center",
+            backgroundColor: colors.ink,
+          }}
+        >
+          <T style={{ color: colors.sand, fontFamily: fonts.strong }}>
+            {review.author.fullName.slice(0, 1).toUpperCase()}
+          </T>
+        </View>
+        <View style={{ flex: 1 }}>
+          <T style={{ fontFamily: rtl ? fonts.arabic : fonts.strong }}>
+            {review.author.fullName}
+          </T>
+          <T style={{ fontSize: 12, color: colors.muted }}>
+            {new Date(review.createdAt).toLocaleDateString(
+              language === "ar" ? "ar-TN" : "fr-TN",
+            )}
+          </T>
+        </View>
+        <T style={{ fontFamily: fonts.strong }}>★ {review.rating}/5</T>
+        {!feedCard && menuButton}
+      </View>
       {!feedCard && <TextAction title={review.shop.name} onPress={openShop} />}
       {review.productName && (
         <T style={{ color: colors.muted }}>{review.productName}</T>

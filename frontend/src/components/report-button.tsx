@@ -6,6 +6,7 @@ import { useLocale } from "../lib/locale";
 import { post } from "../lib/api";
 import { colors } from "../theme";
 import { Button, Field, Notice, T, TextAction } from "./ui";
+import { ReviewActionIcon } from "./review-action-icon";
 const reasons = [
   ["SPAM", "Spam", "إشهار مزعج"],
   ["ABUSE", "Contenu offensant", "إساءة"],
@@ -41,19 +42,20 @@ export function ReportButton({
       setBusy(false);
     }
   };
+  const show = () => {
+    if (!user) router.push({ pathname: "/login", params: { returnTo: path } });
+    else {
+      setOpen(true);
+      setMessage("");
+    }
+  };
   return (
     <View>
-      <TextAction
-        title={t.report}
-        onPress={() => {
-          if (!user)
-            router.push({ pathname: "/login", params: { returnTo: path } });
-          else {
-            setOpen(true);
-            setMessage("");
-          }
-        }}
-      />
+      {targetType === "review" ? (
+        <ReviewActionIcon icon="flag" label={t.report} onPress={show} />
+      ) : (
+        <TextAction title={t.report} onPress={show} />
+      )}
       <Notice text={!open ? message : ""} />
       <Modal
         transparent

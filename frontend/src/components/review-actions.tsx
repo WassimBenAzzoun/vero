@@ -8,6 +8,7 @@ import { sharePath } from "../lib/share";
 import type { Review } from "../lib/reviews";
 import { Notice, TextAction } from "./ui";
 import { ReportButton } from "./report-button";
+import { ReviewActionIcon } from "./review-action-icon";
 export function ReviewActions({ review }: { review: Review }) {
   const { user } = useAuth(),
     { t, language } = useLocale();
@@ -44,7 +45,8 @@ export function ReviewActions({ review }: { review: Review }) {
           flexDirection: "row",
           justifyContent: "space-between",
           flexWrap: "wrap",
-          gap: 10,
+          alignItems: "flex-start",
+          columnGap: 4,
         }}
       >
         <TextAction
@@ -53,8 +55,10 @@ export function ReviewActions({ review }: { review: Review }) {
             if (!busy) void like();
           }}
         />
-        <TextAction
-          title={`${t.comments} (${review.commentCount})`}
+        <ReviewActionIcon
+          icon="chat"
+          label={`${t.comments} (${review.commentCount})`}
+          count={review.commentCount}
           onPress={() =>
             router.push({
               pathname: "/reviews/[id]",
@@ -62,8 +66,9 @@ export function ReviewActions({ review }: { review: Review }) {
             })
           }
         />
-        <TextAction
-          title={t.share}
+        <ReviewActionIcon
+          icon="share"
+          label={t.share}
           onPress={() =>
             void sharePath(`/reviews/${review.id}`)
               .then(() =>
@@ -74,9 +79,9 @@ export function ReviewActions({ review }: { review: Review }) {
               .catch(() => setMessage(t.network))
           }
         />
+        <ReportButton targetType="review" targetId={review.id} />
       </View>
       <Notice text={message} />
-      <ReportButton targetType="review" targetId={review.id} />
     </View>
   );
 }
