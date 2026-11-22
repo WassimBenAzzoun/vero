@@ -48,8 +48,6 @@ Integration tests must use an isolated test database, connection URL and volume/
 - Container unhealthy: inspect `docker compose -f backend/docker-compose.dev.yml logs postgres`; check initialization variables against the existing volume before changing anything.
 - Prisma cannot connect: distinguish the host endpoint `127.0.0.1:5433` from container endpoint `postgres:5432` and verify the intended database credentials.
 
-## References
-
 ## Verification recorded on 2026-11-22
 
 - Compose configuration validation passed and `up -d --wait` reached healthy status.

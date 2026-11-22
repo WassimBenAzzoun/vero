@@ -25,6 +25,28 @@ The PDF mentions binary "legit or scam" reviewing, Top Trusted weekly rankings, 
 
 ## Frontend implementation steps
 
+The user explicitly selected the Expo plugin on 2026-11-22. Its `expo-overview` and `expo-project-structure` skills have been read for planning. Use Expo skills for SDK-compatible setup, navigation, native behavior and build verification; Build Web Apps remains responsible for visual concept/fidelity when applicable. Framework choice is Expo across iOS, Android and web.
+
+Proposed new-app layout:
+
+```text
+frontend/
+  assets/
+  src/
+    app/           # Expo Router routes/layouts only
+    screens/       # Feature screens and private screen components
+    components/    # Reusable UI primitives
+    hooks/         # Shared hooks
+    lib/           # API client, auth adapters, query configuration
+    utils/         # Pure helpers and colocated tests
+    locales/       # French/Arabic translation resources
+    theme.ts       # Shared brand tokens
+  app.config.ts
+  package.json
+```
+
+Keep NestJS as the API boundary; do not duplicate authentication, database or domain services in Expo API routes. Native/web variants use the same typed interface. Consult the plugin overview and CLI help when scaffolding; select a concrete SDK then use its version-matched documentation and compatible dependency installation. No Expo SDK is installed as part of tasks 01/02.
+
 - [ ] Scaffold Expo with TypeScript and Expo Router in frontend/. Select compatible stable versions using current official documentation and commit its lockfile.
 - [ ] Define central palette, spacing, radius, type, elevation and motion tokens. Maintain a focused set of Button, Input, StarRating, Avatar, ReviewCard, ShopRow, PhotoPicker, EmptyState and ErrorState components.
 - [ ] With the Build Web Apps skill, produce complete primary app-screen concepts grounded in this brand before substantial UI coding. Cover Feed, search/shop, composer and auth states, plus mobile/desktop adaptations; preserve Expo rather than its generic Vite default.

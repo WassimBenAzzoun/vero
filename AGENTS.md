@@ -20,6 +20,7 @@ This root file applies throughout the repository. Read nested AGENTS.md files fo
 ## Stack and repository
 
 - `frontend/`: Expo + React Native + TypeScript for iOS, Android and web. It is empty at planning time. Use Expo Router; do not replace Expo with a Vite-only website.
+- The user selected the Expo plugin (`expo2`). Read its `expo-overview` and applicable leaf skills for frontend work. For a new app use `src/app/` for routes only, sibling `screens/` and `components/` for UI, and platform adapters where needed. Keep backend logic in NestJS.
 - `backend/`: existing NestJS REST API, Prisma and PostgreSQL. Extend existing auth, guards, users, validation, Swagger and health modules.
 - Run local PostgreSQL through Docker Compose using `backend/docker-compose.dev.yml`; see `docs/12-docker-database.md`. Preserve its named volume and never delete/reset data as routine setup.
 - `backend/prisma/schema.prisma`: currently CloudOps models, to be migrated into the Vero domain. Do not treat these as final product entities.
